@@ -256,6 +256,7 @@ export default function Home() {
         <a href="/lab" style={{ ...styles.navBtn(false), display: 'block', textDecoration: 'none' }}>Developer Lab</a>
         <a href="/claw" style={{ ...styles.navBtn(false), display: 'block', textDecoration: 'none' }}>Claw Operations</a>
         <a href="/metapen" style={{ ...styles.navBtn(false), display: 'block', textDecoration: 'none', borderColor: '#16a34a', color: '#86efac' }}>MetaPen</a>
+        <a href="/nirvana" style={{ ...styles.navBtn(false), display: 'block', textDecoration: 'none', borderColor: '#22d3ee', color: '#67e8f9' }}>Nirvana</a>
         <button style={styles.navBtn(view === 'addons')} onClick={() => setView('addons')}>Integrations</button>
         <div style={{ marginTop: 'auto', fontSize: 12, color: '#8b949e' }}>
           Coding API · AGENTS.md · Plan approval

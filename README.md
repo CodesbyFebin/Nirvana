@@ -9,6 +9,14 @@ Open Web LLM by **CodesbyFebin** is a single-operator workspace for coordinating
 > **Source repository:** [CodesbyFebin source](https://github.com/CodesbyFebin/Jules-Claw) (historical repository URL; not the public product name)
 > **Existing API/environment namespaces:** unchanged to avoid breaking deployments.
 
+
+## Nirvana merge (local vertical slice)
+
+This repo also hosts the **Nirvana** governed-task vertical slice (`/nirvana`, `/api/nirvana/**`).
+See [`NIRVANA.md`](./NIRVANA.md) and `docs/nirvana/`. Cloud integrations (Nebius, Nemotron,
+RISC Zero, Celestia, robots) remain **Planned / not configured**. Approvals do not authorize
+live execution. SHA-256 audit links are hashes, not ZK proofs.
+
 ## v0.2 preview
 
 - Create and monitor configured coding-provider sessions; approve plans and send feedback

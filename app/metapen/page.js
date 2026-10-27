@@ -211,6 +211,10 @@ export default function MetaPenPage() {
         }}>METAPEN</a>
 
         <nav style={{ display: 'flex', gap: 4 }}>
+          <a href="/nirvana" style={{
+            display: 'block', marginBottom: 10, padding: '8px 10px', borderRadius: 8,
+            border: `1px solid ${theme.panelBorder}`, color: theme.cyanSoft, textDecoration: 'none', fontSize: 12,
+          }}>✳ Nirvana home</a>
           {NAV.map(([id, label]) => (
             <button
               key={id}
