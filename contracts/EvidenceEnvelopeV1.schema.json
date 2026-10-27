@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvidenceEnvelopeV1",
+  "description": "Proposed contract; validation is not cryptographic verification or authorization.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "workspace_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "action_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "artifact_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "guest_image_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "journal_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "receipt_artifact_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "verification_status": {
+      "enum": [
+        "pending",
+        "verified",
+        "rejected"
+      ]
+    },
+    "verifier_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "verified_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "trusted_input_class": {
+      "enum": [
+        "guest-executed",
+        "signed-runner-assertions"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "workspace_id",
+    "task_id",
+    "action_digest",
+    "artifact_digest",
+    "guest_image_id",
+    "journal_digest",
+    "receipt_artifact_digest",
+    "verification_status",
+    "verifier_version",
+    "verified_at",
+    "trusted_input_class"
+  ]
+}

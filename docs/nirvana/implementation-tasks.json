@@ -1,0 +1,1039 @@
+{
+  "version": 1,
+  "status": "planning_backlog",
+  "note": "All target implementation tasks unexecuted. Sequential dependency baseline; optional gates may be excluded from a declared release scope.",
+  "tasks": [
+    {
+      "id": "G0-01",
+      "gate": "G0",
+      "title": "Fix secure-context and persistence errors",
+      "scope": "Detect unavailable crypto/storage before mutation; make task+event write atomic and show actionable failure.",
+      "depends_on": [],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Plain HTTP error, denied storage, quota failure and reload leave no partial tasks.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G0-02",
+      "gate": "G0",
+      "title": "Serialize audit producers",
+      "scope": "Single event queue plus revision check; validate complete stored records.",
+      "depends_on": [
+        "G0-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Concurrent torque/task events form one chain; corrupt nested records rejected.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G0-03",
+      "gate": "G0",
+      "title": "Qualify console interactions",
+      "scope": "Test create/read/write scopes, approval/rejection, filters, export, reload, keyboard and mobile.",
+      "depends_on": [
+        "G0-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Browser tests pass on localhost secure context; export recomputes chain; no fabricated cloud status.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G1-01",
+      "gate": "G1",
+      "title": "Bootstrap monorepo and contracts",
+      "scope": "Pin runtimes, lockfiles, contract generation, formatting and CI.",
+      "depends_on": [
+        "G0-03"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Clean checkout builds; contract drift fails CI; secrets absent.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G1-02",
+      "gate": "G1",
+      "title": "Implement OIDC workspace identity",
+      "scope": "Validate issuer/audience/expiry; server membership and role checks; protect cookie writes.",
+      "depends_on": [
+        "G1-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Two-user tenant isolation, CSRF, logout and expiry tests pass.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G1-03",
+      "gate": "G1",
+      "title": "Migrate PostgreSQL domain records",
+      "scope": "Create task revisions, events, approvals, artifacts, jobs and outbox with tenant constraints.",
+      "depends_on": [
+        "G1-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Fresh migration and upgrade pass; foreign tenant IDs denied.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G1-04",
+      "gate": "G1",
+      "title": "Replace localStorage task source",
+      "scope": "API-backed console with durable status and explicit empty/error/loading states.",
+      "depends_on": [
+        "G1-03"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Two sessions see same task; disconnect/reconnect resumes ordered events.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G2-01",
+      "gate": "G2",
+      "title": "Implement transition engine",
+      "scope": "Versioned task states and immutable revisions; legal transitions only.",
+      "depends_on": [
+        "G1-04"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Conflicting updates produce one winner; illegal transitions fail.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G2-02",
+      "gate": "G2",
+      "title": "Implement outbox and leases",
+      "scope": "Transactional events, leased jobs, heartbeat, bounded attempts and dead letters.",
+      "depends_on": [
+        "G2-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Kill worker/controller at boundaries; jobs recover without duplicate effects.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G2-03",
+      "gate": "G2",
+      "title": "Implement cancellation and reconciliation",
+      "scope": "Persist cancel request, terminate worker, reconcile uncertain external actions.",
+      "depends_on": [
+        "G2-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Cancel during queue/run/apply reports actual outcome and confirmed worker exit.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G3-01",
+      "gate": "G3",
+      "title": "Implement deterministic policy tiers",
+      "scope": "Map actions to reviewed policies; model recommendation cannot override.",
+      "depends_on": [
+        "G2-03"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Prompt injection cannot elevate tool access or self-approve.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G3-02",
+      "gate": "G3",
+      "title": "Implement action-bound approvals",
+      "scope": "Digest binds task revision, arguments, artifact, destination, policy, expiry, nonce and budget.",
+      "depends_on": [
+        "G3-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Alter each field and replay/expire/revoke approval: all denied.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G3-03",
+      "gate": "G3",
+      "title": "Implement execution-time capability gate",
+      "scope": "Check authorization again immediately before side effects; transactional nonce/idempotency handling.",
+      "depends_on": [
+        "G3-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "TOCTOU artifact swap and concurrent replay cannot execute changed/duplicate action.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G3-04",
+      "gate": "G3",
+      "title": "Implement budget reservations",
+      "scope": "Per-workspace/task limits; reserve before work, settle observed usage and block unknown strict-free spend.",
+      "depends_on": [
+        "G3-03"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Concurrent tasks cannot overspend; absent pricing/credits blocks strict-free mode.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G4-01",
+      "gate": "G4",
+      "title": "Qualify CPU Kata host",
+      "scope": "Prove virtualization support, runtime selection and actual microVM boundary on selected host.",
+      "depends_on": [
+        "G3-04"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Retain host/runtime versions and isolation evidence; unsupported host marked blocked.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G4-02",
+      "gate": "G4",
+      "title": "Build disposable job worker",
+      "scope": "No host socket/mounts/metadata; non-root, resource/time limits, deny-by-default network.",
+      "depends_on": [
+        "G4-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Host path, metadata, cross-tenant network and resource exhaustion attacks blocked.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G4-03",
+      "gate": "G4",
+      "title": "Implement scoped artifact service",
+      "scope": "Immutable content-addressed objects, size bounds and short-lived scoped access.",
+      "depends_on": [
+        "G4-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Hash mismatch, foreign workspace object, expired token and overwritten object denied.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G4-04",
+      "gate": "G4",
+      "title": "Execute real code-change fixture",
+      "scope": "Agent emits patch, locked dependencies, actual tests and complete exit/log artifacts.",
+      "depends_on": [
+        "G4-03"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Fixture change builds/tests in isolated worker; intentionally broken change fails.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G5-01",
+      "gate": "G5",
+      "title": "Discover Nebius capabilities",
+      "scope": "Authenticated model catalog plus separate bounded inference/tool/schema probes.",
+      "depends_on": [
+        "G4-04"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Exact returned IDs captured; inaccessible/retired IDs fail closed.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G5-02",
+      "gate": "G5",
+      "title": "Implement inference gateway",
+      "scope": "Logical roles, approved privacy class, deadlines, token caps, streamed cancellation and usage.",
+      "depends_on": [
+        "G5-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Timeout/rate limit/provider outage paths bounded; no unauthorized fallback.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G5-03",
+      "gate": "G5",
+      "title": "Evaluate Dragon Router",
+      "scope": "Representative labeled tasks; measure route quality, spend and escalation misses.",
+      "depends_on": [
+        "G5-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Publish evaluation dataset/version and error metrics; no assumed 90/10 split.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G5-04",
+      "gate": "G5",
+      "title": "Qualify private inference mode",
+      "scope": "Review service route, DNS, packet/log data flow, retention and region controls.",
+      "depends_on": [
+        "G5-03"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Private mode enabled only with retained network and data handling evidence.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G6-01",
+      "gate": "G6",
+      "title": "Implement MCP registry",
+      "scope": "Standards-compatible transport, reviewed schemas, pinned tool identities and capability mapping.",
+      "depends_on": [
+        "G5-04"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Unknown tool/changed schema denied; protocol interop tests pass.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G6-02",
+      "gate": "G6",
+      "title": "Implement bounded coding workflow",
+      "scope": "Plan, patch and test within task grant; tool output always untrusted.",
+      "depends_on": [
+        "G6-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Malicious repo/tool text cannot read secrets, broaden targets or approve action.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G6-03",
+      "gate": "G6",
+      "title": "Implement staging deploy adapter",
+      "scope": "Deploy application artifacts to approved container target, not a generic model endpoint.",
+      "depends_on": [
+        "G6-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Target digest observed; repeated idempotency key returns same action.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G7-01",
+      "gate": "G7",
+      "title": "Specify bounded guest predicates",
+      "scope": "Publish canonical manifest schema, explicit trusted inputs and expected journal semantics.",
+      "depends_on": [
+        "G6-03"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Positive/negative vectors cover each predicate; claims exclude unexecuted tests.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G7-02",
+      "gate": "G7",
+      "title": "Implement real guest and host",
+      "scope": "Pinned Rust guest image; deterministic bounded checks; production proof mode.",
+      "depends_on": [
+        "G7-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Real receipt generated; guest source/image provenance retained; no dev receipt accepted.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G7-03",
+      "gate": "G7",
+      "title": "Implement independent verifier",
+      "scope": "Pin image ID; verify seal, decode journal and compare all action commitments.",
+      "depends_on": [
+        "G7-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Forged/truncated/wrong-image/wrong-action/dev/fail-result receipts rejected.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G7-04",
+      "gate": "G7",
+      "title": "Benchmark proving jobs",
+      "scope": "Async job statuses, resource caps, cancellation and hardware/cycle timing evidence.",
+      "depends_on": [
+        "G7-03"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Observed duration distributions and failure paths; no hardcoded timing claims.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G8-01",
+      "gate": "G8",
+      "title": "Implement signed audit envelopes",
+      "scope": "Canonical tenant sequence, signatures, key rotation and independent export verification.",
+      "depends_on": [
+        "G7-04"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Mutation, truncation against external checkpoint, reorder and wrong signer detected.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G8-02",
+      "gate": "G8",
+      "title": "Bind verifier to execution gate",
+      "scope": "Verify artifact/policy/action match before accepting approval and applying stage release.",
+      "depends_on": [
+        "G8-01"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Old valid receipt cannot authorize modified artifact or different destination.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G8-03",
+      "gate": "G8",
+      "title": "Run complete staging vertical slice",
+      "scope": "Real inference, isolated code execution, checks, receipt, approval and observed deployment.",
+      "depends_on": [
+        "G8-02"
+      ],
+      "priority": "P0",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "One evidence bundle links source commit through final observed target digest.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G9-01",
+      "gate": "G9",
+      "title": "Implement encrypted memory store",
+      "scope": "Workspace keys, provenance, retention, embeddings and deletion handling.",
+      "depends_on": [
+        "G8-03"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Key rotation and deletion tests cover source, vectors and derived summaries.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G9-02",
+      "gate": "G9",
+      "title": "Implement task-bound retrieval grants",
+      "scope": "Subject/task revision/purpose/scope/expiry; prequery and postquery checks.",
+      "depends_on": [
+        "G9-01"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Cross-tenant, expired, revoked, deleted and purpose-mismatched retrieval denied.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G9-03",
+      "gate": "G9",
+      "title": "Evaluate redaction and injection",
+      "scope": "Leakage corpus and hostile memory prompts; minimize inference inputs.",
+      "depends_on": [
+        "G9-02"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Report false negatives/positives; no absolute zero-PII claim.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G10-01",
+      "gate": "G10",
+      "title": "Integrate deterministic simulator adapter",
+      "scope": "Pin world, policy, seed, timestep and actual sensor/constraint outputs.",
+      "depends_on": [
+        "G9-03"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Replay reproduces run within documented tolerance; synthetic data clearly labeled.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G10-02",
+      "gate": "G10",
+      "title": "Define safety manifest and checks",
+      "scope": "Bound policy digest, model/calibration, torque/velocity/joint limits and permitted environment.",
+      "depends_on": [
+        "G10-01"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Boundary and invalid sensor cases fail; proof assumptions explicitly documented.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G10-03",
+      "gate": "G10",
+      "title": "Implement signed OTA staging",
+      "scope": "Device identity, signature, expiry, monotonic release counter and rollback digest.",
+      "depends_on": [
+        "G10-02"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Forged/expired/replayed/incompatible releases rejected; rollback exercised.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G10-04",
+      "gate": "G10",
+      "title": "Qualify hardware safety independently",
+      "scope": "Physical emergency stop, independent limit controller, communication loss and HIL.",
+      "depends_on": [
+        "G10-03"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Observed hardware tests pass before enabled physical actions; no remote proof safety dependency.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G11-01",
+      "gate": "G11",
+      "title": "Implement consented Celestia adapter",
+      "scope": "Use qualified current blob API; publish minimal non-sensitive commitments only.",
+      "depends_on": [
+        "G10-04"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Opt-out prevents all submission; payload inspection excludes raw memory/secrets.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G11-02",
+      "gate": "G11",
+      "title": "Verify submission inclusion",
+      "scope": "Track namespace/height/transaction and independently verify inclusion with failure/reorg policy.",
+      "depends_on": [
+        "G11-01"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Application/Systems",
+      "acceptance": "Broadcast alone remains pending; valid inclusion linked to local evidence; fees bounded.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G12-01",
+      "gate": "G12",
+      "title": "Prepare reviewed Nebius IaC",
+      "scope": "Qualified products/region, private service identities, firewall and secret injection.",
+      "depends_on": [
+        "G11-02"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Recreate staging from clean account config; no unexpected public services.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G12-02",
+      "gate": "G12",
+      "title": "Migrate UI and complete data-flow inventory",
+      "scope": "Self-host assets; inventory DNS/CDN/inference/logs/backups/support and egress.",
+      "depends_on": [
+        "G12-01"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Sovereignty claims match measured boundaries; no external font/analytics requests.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G12-03",
+      "gate": "G12",
+      "title": "Implement telemetry and incident controls",
+      "scope": "Safe logs, alerts, emergency pause, credential revocation and artifact retention.",
+      "depends_on": [
+        "G12-02"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Leak sentinel never appears in logs; emergency pause blocks new external actions.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G12-04",
+      "gate": "G12",
+      "title": "Execute recovery and load drills",
+      "scope": "Backup restore, queue replay, uncertain action reconciliation and bounded concurrency.",
+      "depends_on": [
+        "G12-03"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Measure RPO/RTO and p95 latency with workload/hardware stated; no duplicate writes.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G12-05",
+      "gate": "G12",
+      "title": "Complete independent security review",
+      "scope": "External reviewer assesses auth, isolation, proof binding, privacy and device boundary.",
+      "depends_on": [
+        "G12-04"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "Critical/high findings resolved and retested; review report linked to release commit.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    },
+    {
+      "id": "G12-06",
+      "gate": "G12",
+      "title": "Produce release evidence and demo",
+      "scope": "Pin all evidence to final commit and disclose unpassed tracks.",
+      "depends_on": [
+        "G12-05"
+      ],
+      "priority": "P1",
+      "status": "not_started",
+      "owner_role": "Security/Platform",
+      "acceptance": "100-point rubric assessed only from executed evidence; all mandatory gates pass.",
+      "evidence": [
+        "source_commit",
+        "test_command_or_procedure",
+        "environment_versions",
+        "timestamp",
+        "raw_result",
+        "artifact_digests"
+      ],
+      "done": false
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ActionManifestV1",
+  "description": "Proposed contract; validation is not cryptographic verification or authorization.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "workspace_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "task_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "artifact_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "policy_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tool_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "method": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "destination": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "arguments_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "maximum_spend_minor_units": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nonce": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    }
+  },
+  "required": [
+    "schema_version",
+    "workspace_id",
+    "task_id",
+    "task_revision",
+    "artifact_digest",
+    "policy_digest",
+    "tool_id",
+    "method",
+    "destination",
+    "arguments_digest",
+    "maximum_spend_minor_units",
+    "currency",
+    "expires_at",
+    "nonce"
+  ]
+}
