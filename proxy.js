@@ -41,6 +41,7 @@ export function proxy(request) {
     const path = request.nextUrl.pathname;
     const approved = path.startsWith('/api/auth/') || path === '/api/desk' ||
       path === '/api/memory' || path === '/api/verification' ||
+      path.startsWith('/api/nirvana/') ||
       /^\/api\/verification\/[0-9a-f-]{36}$/.test(path);
     if (!approved) return NextResponse.json({ error: 'Integration unavailable until tenant qualification' }, { status: 503 });
   }
