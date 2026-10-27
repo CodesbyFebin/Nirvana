@@ -15,7 +15,7 @@ Open Web LLM by **CodesbyFebin** is a single-operator workspace for coordinating
 - Connected sources, paginated sessions and activity history
 - Display Jules-generated patch artifacts and pull-request output links
 - **Fail-closed HTTP Basic authentication** across UI and API
-- Same-origin guard for browser-originated mutations
+- Fail-closed Origin requirement for mutating `/api/*` requests (missing or mismatched Origin → 403)
 - Validated inputs, normalized session resource names, timeouts and upstream errors
 - Explicitly unavailable memory until durable storage exists
 - Optional authenticated OpenAI-compatible gateway proxy
@@ -33,7 +33,9 @@ OPEN_JULES_PASSWORD=replace_with_a_random_secret_16_chars_min
 # GATEWAY_API_KEY=your_gateway_api_key
 ```
 
-Run `npm install && npm run dev`; open http://localhost:3000 and log in using HTTP Basic authentication. Do not deploy without HTTPS. Authentication is **single-operator only**; this is not yet suitable for multiple users or shared workspaces.
+**Node.js requirement:** Node **24+** (see `engines` in `package.json` and `.nvmrc`). Built-in `node:sqlite` is required for the capability-approval store; Node 20 fails those tests.
+
+Run `npm install && npm run dev`; open http://localhost:3000 and log in using HTTP Basic authentication. MetaPen control center: http://127.0.0.1:3000/metapen. Do not deploy without HTTPS. Authentication is **single-operator only**; this is not yet suitable for multiple users or shared workspaces.
 
 Jules sources must first be connected through the official Jules web app. `JULES_API_KEY` must never be exposed to the browser.
 

@@ -1,7 +1,11 @@
-import { validateSwarmRequest, swarmConfiguration, runSwarmReview } from '../../../lib/swarm';
+import { validateSwarmRequest, swarmConfiguration, runSwarmReview, swarmStatus } from '../../../lib/swarm';
 export const runtime = 'nodejs';
 export const maxDuration = 120;
 export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  return Response.json(swarmStatus(), { headers: { 'Cache-Control': 'no-store' } });
+}
 
 export async function POST(request) {
   try {

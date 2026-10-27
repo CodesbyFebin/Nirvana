@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { localAccessPermitted } from './lib/access-mode.mjs';
+import { mutationOriginDenied } from './lib/same-origin.mjs';
 
 function equalSecrets(a, b) {
   const left = new TextEncoder().encode(a);
@@ -43,11 +44,9 @@ export function proxy(request) {
       /^\/api\/verification\/[0-9a-f-]{36}$/.test(path);
     if (!approved) return NextResponse.json({ error: 'Integration unavailable until tenant qualification' }, { status: 503 });
   }
-  if (request.nextUrl.pathname.startsWith('/api/') && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
-    const origin = request.headers.get('origin');
-    if (origin && origin !== request.nextUrl.origin) {
-      return NextResponse.json({ error: 'Cross-origin mutations are forbidden' }, { status: 403 });
-    }
+  const originProblem = mutationOriginDenied(request);
+  if (originProblem) {
+    return NextResponse.json({ error: originProblem }, { status: 403 });
   }
   const response = NextResponse.next();
   response.headers.set('Cache-Control', 'no-store');

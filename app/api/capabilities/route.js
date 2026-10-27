@@ -1,4 +1,4 @@
-import { openApprovalDb, requestApproval, approvalStatus } from '../../../lib/capability-approvals.mjs';
+import { openApprovalDb, requestApproval, approvalStatus, listApprovals, ALLOWLISTED_CAPABILITIES } from '../../../lib/capability-approvals.mjs';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -10,11 +10,24 @@ function withDb(action) {
 }
 export async function GET(request) {
   const id = new URL(request.url).searchParams.get('id');
-  if (!id || !/^[0-9a-f-]{36}$/.test(id)) return Response.json({ error: 'Valid approval ID required' }, { status: 400 });
-  return withDb(db => {
-    const record = approvalStatus(db, id);
-    return record ? Response.json({ approval: record }) : Response.json({ error: 'Not found' }, { status: 404 });
-  });
+  if (id) {
+    if (!/^[0-9a-f-]{36}$/.test(id)) return Response.json({ error: 'Valid approval ID required' }, { status: 400 });
+    return withDb(db => {
+      const record = approvalStatus(db, id);
+      return record ? Response.json({ approval: record }) : Response.json({ error: 'Not found' }, { status: 404 });
+    });
+  }
+  return withDb(db => Response.json({
+    allowlisted: ALLOWLISTED_CAPABILITIES,
+    approvals: listApprovals(db, 40),
+    notice: 'Approvals are requested here; decide/consume only via local TTY (npm run approval / execute:approved). Expiry is short-lived.',
+    constraints: {
+      scope: 'owned-lab',
+      network: 'restricted',
+      exploitWindow: 'approval TTL (~10 min pending; consume once)',
+      label: 'JeV (MEV) approval desk',
+    },
+  }, { headers: { 'Cache-Control': 'no-store' } }));
 }
 export async function POST(request) {
   let action;
