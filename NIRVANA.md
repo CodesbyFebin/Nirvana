@@ -33,6 +33,15 @@ honest evidence — not four finished products and not GPU provisioning.
 zkVM remain *planned* separately (Kata = self-operated GPU fleet; ConTree = managed sandbox API).
 **JeV: Nirvana does not execute in ConTree yet.**
 
+## Muse-Claw DevOps — SDLC Flow (dry-run, JeV-gated)
+
+An 8-stage, sequential issue → deploy-ready pipeline: Planner → Architect → Coder → Tester → Security → Compliance → Deployer → GreenOps.
+Each stage consumes the previous stage's `SdlcStageArtifactV1` JSON artifact, is schema-validated (a failing stage halts the flow fail-closed),
+hashed, and appended to the SHA-256 audit chain. Commit / merge-request / patch / deploy outputs are **proposals** that become JeV approvals bound to
+the stage artifact digest; approving records consent only — **NO EXECUTION AUTHORIZED**. Stages run in deterministic **dry-run template mode**
+(no inference, no spend) until a Token Factory key is configured and the inference path is wired. Compliance is a checklist, not certification;
+GreenOps is an assumption-based estimate, never measured. See [docs/nirvana/SDLC-FLOW.md](docs/nirvana/SDLC-FLOW.md).
+
 ## Execution / sandbox plane
 
 | Surface | Role | Status |

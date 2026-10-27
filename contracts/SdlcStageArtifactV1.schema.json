@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SdlcStageArtifactV1",
+  "description": "Structured artifact for one Muse-Claw SDLC Flow stage. Validation is a shape check only; it is not verification, certification, or authorization. Proposals are never executed.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "stage": {
+      "enum": [
+        "planner",
+        "architect",
+        "coder",
+        "tester",
+        "security",
+        "compliance",
+        "deployer",
+        "greenops"
+      ]
+    },
+    "position": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8
+    },
+    "mode": {
+      "enum": [
+        "dry-run",
+        "inference"
+      ]
+    },
+    "role": {
+      "enum": [
+        "planner",
+        "coder",
+        "router"
+      ]
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "input_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "body": {
+      "type": "object"
+    },
+    "proposals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action",
+          "description",
+          "executed"
+        ],
+        "properties": {
+          "action": {
+            "enum": [
+              "commit",
+              "open-merge-request",
+              "apply-patch",
+              "deploy"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "executed": {
+            "const": false
+          }
+        }
+      }
+    },
+    "measured": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "stage",
+    "position",
+    "mode",
+    "role",
+    "model_id",
+    "input_digest",
+    "summary",
+    "body",
+    "proposals",
+    "measured"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "planner"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "subtasks",
+              "acceptance_criteria"
+            ],
+            "properties": {}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "architect"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "adr",
+              "file_map",
+              "interfaces"
+            ],
+            "properties": {}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "coder"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "patch_plan",
+              "committed"
+            ],
+            "properties": {
+              "committed": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "tester"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "test_plan"
+            ],
+            "properties": {}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "security"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "findings",
+              "proposed_fixes"
+            ],
+            "properties": {}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "compliance"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "controls",
+              "certification"
+            ],
+            "properties": {
+              "certification": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "deployer"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "ci_checks",
+              "rollout",
+              "rollback"
+            ],
+            "properties": {}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "greenops"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "estimate"
+            ],
+            "properties": {
+              "estimate": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "kg_co2e",
+                  "assumptions"
+                ],
+                "properties": {
+                  "label": {
+                    "const": "estimate"
+                  },
+                  "kg_co2e": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "assumptions": {
+                    "type": "array",
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

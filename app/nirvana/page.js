@@ -48,6 +48,7 @@ const TRACKS = [
 const VIEWS = [
   ['overview', 'Overview'],
   ['tasks', 'Tasks'],
+  ['sdlc', 'SDLC Flow'],
   ['approvals', 'JeV Desk'],
   ['physical', 'Physical'],
   ['evidence', 'Evidence'],
@@ -308,6 +309,7 @@ export default function NirvanaPage() {
                 {view === 'overview' ? 'Mission control' :
                   view === 'tasks' ? 'Tasks' :
                     view === 'approvals' ? 'JeV / --mev Gatekeeper' :
+                      view === 'sdlc' ? 'Muse-Claw SDLC Flow' :
                       view === 'physical' ? 'Edge-Sentinel' :
                         view === 'evidence' ? 'Evidence ledger' : 'Connections'}
               </h1>
@@ -425,6 +427,8 @@ export default function NirvanaPage() {
             </Card>
           )}
 
+          {view === 'sdlc' && <SdlcFlowView onChanged={refresh} openJev={() => setView('approvals')} />}
+
           {view === 'physical' && (
             <Card title="Edge-Sentinel · local torque check" right={<Badge tone="planned">scalar only</Badge>}>
               <p style={{ fontSize: 12, color: theme.muted }}>
@@ -522,6 +526,120 @@ export default function NirvanaPage() {
         }}>{toastMsg}</div>
       ) : null}
     </div>
+  );
+}
+
+function SdlcFlowView({ onChanged, openJev }) {
+  const [flows, setFlows] = useState([]);
+  const [stageDefs, setStageDefs] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [form, setForm] = useState({ title: '', description: '', repo: '' });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+
+  const load = useCallback(async () => {
+    try {
+      const d = await api('/api/nirvana/flows');
+      setFlows(d.flows || []);
+      setStageDefs(d.stages || []);
+    } catch (e) { setErr(e.message); }
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  async function open(id) {
+    try { setSelected((await api(`/api/nirvana/flows/${id}`)).flow); } catch (e) { setErr(e.message); }
+  }
+
+  async function start(ev) {
+    ev.preventDefault();
+    if (busy) return;
+    setBusy(true); setErr('');
+    try {
+      const body = { title: form.title, description: form.description };
+      if (form.repo.trim()) body.repo = form.repo.trim();
+      const d = await api('/api/nirvana/flows', { method: 'POST', body: JSON.stringify(body) });
+      setSelected(d.flow);
+      setForm({ title: '', description: '', repo: '' });
+      await load();
+      await onChanged?.();
+    } catch (e) { setErr(e.message); } finally { setBusy(false); }
+  }
+
+  const stages = selected?.stages || stageDefs.map((d, i) => ({ ...d, position: i + 1, status: 'idle', approvals: [] }));
+  return (
+    <>
+      <Card
+        title="Issue → deploy-ready · 8 specialist stages"
+        right={<span style={{ display: 'flex', gap: 6 }}>
+          <Badge tone="planned">DRY-RUN</Badge>
+          <span style={{ fontSize: 11, fontWeight: 700, color: theme.warn, background: theme.warnBg, padding: '4px 10px', borderRadius: 6 }}>NO EXECUTION AUTHORIZED</span>
+        </span>}
+      >
+        <p style={{ fontSize: 12, color: theme.muted, marginTop: 0 }}>
+          Each stage consumes the previous stage&apos;s JSON artifact and emits its own, hashed into the audit chain.
+          Template mode until a Token Factory key is configured and the inference path is wired — no model ran, no spend.
+          Commits, merge requests, patches and deploys are proposals sent to the JeV desk; approving records consent only.
+          Compliance is a checklist, not certification. GreenOps is an estimate, never a measurement.
+        </p>
+        <form onSubmit={start} style={{ display: 'grid', gap: 10 }}>
+          <label style={labelStyle}>Issue title
+            <input required maxLength={120} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Fix login redirect loop" style={inputStyle} />
+          </label>
+          <label style={labelStyle}>Issue description
+            <textarea required maxLength={3000} rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="What is broken and how to tell it is fixed." style={{ ...inputStyle, resize: 'vertical' }} />
+          </label>
+          <label style={labelStyle}>Repository (optional, owner/name — not accessed)
+            <input maxLength={200} value={form.repo} onChange={(e) => setForm({ ...form, repo: e.target.value })} placeholder="owner/repo" style={inputStyle} />
+          </label>
+          <div><button type="submit" disabled={busy} style={btnPrimary}>{busy ? 'Running dry-run…' : 'Run SDLC flow (dry-run) →'}</button></div>
+        </form>
+        {err && <div style={{ color: theme.danger, fontSize: 12, marginTop: 8 }}>{err}</div>}
+      </Card>
+
+      <Card title={selected ? `Pipeline · ${selected.title}` : 'Pipeline'} right={selected ? <span style={{ fontSize: 11, color: theme.muted }}>{selected.status}</span> : null}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 10 }}>
+          {stages.map((s) => (
+            <div key={s.stage} style={{
+              background: theme.tile, borderRadius: 10, padding: 12,
+              border: `1px solid ${s.status === 'failed' ? theme.danger : s.status === 'completed' ? theme.panelBorderStrong : theme.panelBorder}`,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <strong style={{ fontSize: 13, color: theme.cyanSoft }}>{s.position}. {s.label}</strong>
+                <span style={{ fontSize: 10, color: s.status === 'failed' ? theme.danger : theme.muted, textTransform: 'uppercase' }}>{s.status}</span>
+              </div>
+              <div style={{ fontSize: 11, color: theme.muted, marginTop: 4 }}>{s.produces}</div>
+              <div style={{ fontSize: 10, color: theme.muted, marginTop: 4 }}>role · {s.role}{s.artifact ? ` · ${s.artifact.mode.toUpperCase()}` : ''}</div>
+              {s.artifact && <div style={{ fontSize: 12, marginTop: 6 }}>{s.artifact.summary}</div>}
+              {s.artifactDigest && <div style={{ fontSize: 10, color: theme.concept, marginTop: 6, wordBreak: 'break-all' }}>sha256 · {s.artifactDigest}</div>}
+              {s.error && <div style={{ fontSize: 11, color: theme.danger, marginTop: 6 }}>{s.error}</div>}
+              {s.approvals?.length > 0 && (
+                <div style={{ marginTop: 6 }}>
+                  {s.approvals.map((a) => (
+                    <button key={a.id} type="button" onClick={openJev} style={{ ...btnGhost, padding: '3px 8px', fontSize: 11, marginRight: 4, marginTop: 4 }}>
+                      JeV · {a.action} · {a.decision}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {selected?.evidenceEnvelope && (
+          <div style={{ fontSize: 11, color: theme.muted, marginTop: 10, wordBreak: 'break-all' }}>
+            Evidence envelope (pending, no prover) · journal {selected.evidenceEnvelope.journal_digest}
+          </div>
+        )}
+      </Card>
+
+      <Card title="Flow history">
+        {flows.length === 0 ? <div style={{ color: theme.muted, fontSize: 13 }}>No flows yet.</div> : flows.map((f) => (
+          <div key={f.id} style={{ borderTop: `1px solid ${theme.panelBorder}`, padding: '8px 0', display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+            <span style={{ fontSize: 13 }}>{f.title} <span style={{ color: theme.muted, fontSize: 11 }}>· {f.status} · {f.mode}</span></span>
+            <button type="button" onClick={() => open(f.id)} style={{ ...btnGhost, padding: '3px 10px', fontSize: 12 }}>View</button>
+          </div>
+        ))}
+      </Card>
+    </>
   );
 }
 
