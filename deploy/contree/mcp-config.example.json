@@ -1,0 +1,13 @@
+{
+  "_comment": "Example MCP client registration for contree-mcp. Placeholders only. Prefer contree auth.ini over env tokens (tokens may appear in process listings). Nirvana does not launch this server yet.",
+  "mcpServers": {
+    "contree": {
+      "command": "uvx",
+      "args": ["contree-mcp"],
+      "env": {
+        "CONTREE_HOME": "/path/to/.config/contree",
+        "CONTREE_PROFILE": "default"
+      }
+    }
+  }
+}

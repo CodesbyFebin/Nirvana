@@ -27,7 +27,21 @@ honest evidence — not four finished products and not GPU provisioning.
 | Physical AI | **Edge-Sentinel Bridge** | Scalar torque-limit check only; simulation/hardware **disabled** |
 
 **MetaPen** (`/metapen`) is the security / swarm operator layer inside Nirvana
-(10 claws × 50 tool slots = 500-agent concept target, Kali / Kata / zkVM *planned*).
+(10 claws × 50 tool slots = 500-agent concept target). Its sandbox concept maps to
+**ConTree** (Nebius Early Access: VM-isolated, git-like branch/rollback) — see
+[`docs/nirvana/CONTREE-SANDBOX.md`](docs/nirvana/CONTREE-SANDBOX.md). Kali / Kata-on-Nebius /
+zkVM remain *planned* separately (Kata = self-operated GPU fleet; ConTree = managed sandbox API).
+**JeV: Nirvana does not execute in ConTree yet.**
+
+## Execution / sandbox plane
+
+| Surface | Role | Status |
+|---|---|---|
+| **ConTree** (sdk / cli / mcp) | Managed VM-isolated branching sandboxes; MCP tool gateway | Early Access — Unconnected / Planned ([CONTREE-SANDBOX.md](docs/nirvana/CONTREE-SANDBOX.md)) |
+| Kata / Nebius k8s-inference | Self-operated GPU fleet jobs (JAX/Triton etc.) | Unconnected / Planned ([JAX-NVIDIA-NEBIUS.md](docs/nirvana/JAX-NVIDIA-NEBIUS.md)) |
+
+**JeV / --mev:** external execution remains **NO EXECUTION AUTHORIZED**. ConTree wiring in this
+repo is status/probe + docs only.
 
 ## Honesty rules
 
