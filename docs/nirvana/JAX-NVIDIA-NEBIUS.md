@@ -77,6 +77,22 @@ training clusters; `gpu_slicing/` when sharing one H100 across several small end
 Acceptance probe in upstream uses vLLM — fine for smoke; replace with the JAX images above
 for Muse-Claw / Dragon Router JAX workloads.
 
+## kvax — attention-kernel layer (Planned / not configured)
+
+[nebius/kvax](https://github.com/nebius/kvax) (Apache-2.0) is an open-source **Flash Attention 2 for JAX**, implemented in Triton. Per its README it is optimised for attention with **document masks**, supports **context parallelism**, and is designed for distributed training on long sequences with **FSDP/HSDP sharding**. Blog: https://nebius.com/blog/posts/kvax-open-source-flash-attention-for-jax
+
+**Where it fits:** kvax is a Python library imported *inside* the JAX model code that a MaxText job (`deploy/nebius/models/jax-maxtext-job.example.json`) or a Triton JAX Python backend (`deploy/nebius/models/jax-triton.example.json`) would run. It replaces the attention op in the transformer layer; it is not a service and has no endpoint. Nirvana only tracks it as a fail-closed connection row (`lib/nirvana/kvax.mjs`, id `kvax`).
+
+**Install (from upstream):** `pip install kvax`. Upstream notes that the automatically installed Triton and JAX-Triton versions may be incompatible; its benchmarks used `triton==3.1` and `jax-triton==0.2.0`.
+
+**Document masks:** the mask is built block-wise once per forward/backward pass (`create_attention_mask`) and reused across layers; pad-only blocks are skipped when padding tokens are marked with `PADDING_SEGMENT_ID` in `query_segment_ids` / `kv_segment_ids`.
+
+**Context parallelism:** all-gather based (Llama 3 style) on K/V, with tokens permuted/unpermuted (`permute_tokens_context_parallelism` / `unpermute_tokens_context_parallelism`) to balance causal load across GPUs; sharding specs set via `attention_specs` under a global `jax.sharding.Mesh`.
+
+**Upstream limitations:** no bias; no sliding window, ALiBi, or custom masks; context parallelism does not shard across kv_sequence (as RingAttention does).
+
+**Honesty:** Nirvana has **not** run kvax on any GPU. No MaxText/Triton job has been submitted, no benchmark is claimed, and GPU acceleration stays **Planned / not configured** until a real job is qualified. See `deploy/nebius/kvax/README.md`.
+
 ## Qualification checklist (all gates start **pending**)
 
 | Gate | Intent | State |
