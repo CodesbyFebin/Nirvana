@@ -24,7 +24,7 @@ honest evidence — not four finished products and not GPU provisioning.
 | Coding & Agentic Engineering | **Muse-Claw DevOps** | Task intake + scope classification; coding runtime **not connected** |
 | Best Apps & Agents | **Dragon Router + JeV / --mev Gatekeeper** | Local deterministic scope policy + MetaPen 10-claw swarm console (concept counts); external execution **blocked** |
 | Personal AI | **Sentinel-Memory Vault** | Read-only “not connected” registry; no TBAC/encryption yet |
-| Physical AI | **Edge-Sentinel Bridge** | Scalar torque-limit check only; simulation/hardware **disabled** |
+| Physical AI | **Edge-Sentinel Bridge** | Scalar torque-limit check only; simulation/hardware **disabled**. Planned backing: [Nebius Physical AI Workbench (NPA)](docs/nirvana/PHYSICAL-AI-NPA.md) — sim-only / hardware-gated |
 
 **MetaPen** (`/metapen`) is the security / swarm operator layer inside Nirvana
 (10 claws × 50 tool slots = 500-agent concept target). Its sandbox concept maps to
@@ -134,3 +134,15 @@ Token Factory chat/completions spend + serverless jobs · live Nemotron invoke (
 guest/host · independent verifier · Celestia DA · Kata GPU workers · MCP tool gateway ·
 encrypted TBAC memory · robot / simulator / OTA · OIDC multi-user tenancy · outbox /
 durable workflow controller · production deploy adapter.
+
+## Edge-Sentinel / Physical AI → NPA Workbench
+
+Planned backing for the Physical AI track is [nebius/nebius-physical-ai](https://github.com/nebius/nebius-physical-ai)
+(`npa` Workbench: workflow YAML + SkyPilot on Nebius Kubernetes, GHCR images, Object Storage). See
+[docs/nirvana/PHYSICAL-AI-NPA.md](docs/nirvana/PHYSICAL-AI-NPA.md). Status: **Unconnected / Planned, sim-only, hardware-gated**.
+Nirvana launches no NPA or SkyPilot jobs — JeV: NO EXECUTION AUTHORIZED.
+
+How it differs from the other Nebius planes:
+- **ConTree** (`contree-sandbox`) — VM-isolated, git-branching sandboxes for agent code execution.
+- **Token Factory** (`nebius-token-factory`) — managed OpenAI-compatible Nemotron inference (NPA workflows can also call it).
+- **NPA Workbench** (`nebius-physical-ai`) — GPU workflow control plane for simulation, policy training, synthetic data, evaluation.

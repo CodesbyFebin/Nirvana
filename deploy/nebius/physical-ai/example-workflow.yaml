@@ -1,0 +1,21 @@
+# NON-EXECUTING STUB — every line is commented out on purpose. Nirvana never submits this.
+# Excerpt from upstream nebius/nebius-physical-ai workflows/main/groot-1-7-finetune.yaml (Apache-2.0).
+# Running the real workflow provisions B200 GPUs on Nebius K8s via SkyPilot = spend. Requires user approval.
+#
+# apiVersion: npa.workflow/v0.0.1
+# kind: Workflow
+#
+# metadata:
+#   name: groot-1-7-finetune
+#   description: >
+#     Validate the real GR00T N1.7 data-to-checkpoint-to-offline-evaluation path, ...
+#
+# config:
+#   bucket: example-bucket
+#   groot_image: ghcr.io/nebius/nebius-physical-ai/npa-groot@sha256:04b3ea970002d40fb2afd54b17e0a4de2ef456a471c25b6f044d07d9a39e2f76
+#   prefix: "groot-1-7-two-gpu-pipeline/{{run.id}}"
+#   base_model: nvidia/GR00T-N1.7-3B
+#   gpu_type: B200
+#   gpu_count: "2"
+#   max_steps: "4"
+#   # ... see upstream file for full stages

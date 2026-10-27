@@ -2,6 +2,7 @@ import { connectionRegistry } from '../../../../lib/nirvana/store.mjs';
 import { probe as probeNebius } from '../../../../lib/nirvana/nebius-inference.mjs';
 import { probe as probeTokenFactory, roleModelMap } from '../../../../lib/nirvana/token-factory.mjs';
 import { probe as probeContree, capabilities as contreeCapabilities } from '../../../../lib/nirvana/contree.mjs';
+import { probe as probePhysicalAi, capabilities as physicalAiCapabilities } from '../../../../lib/nirvana/physical-ai.mjs';
 import { noStore } from '../../../../lib/nirvana/http.mjs';
 
 export const runtime = 'nodejs';
@@ -9,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   // Probes are read-only GET /models (or /v1/models). Never chat.completions, never spends.
-  const [nebius, tokenFactory, contree] = await Promise.all([probeNebius(), probeTokenFactory(), probeContree()]);
+  const [nebius, tokenFactory, contree, physicalAi] = await Promise.all([probeNebius(), probeTokenFactory(), probeContree(), probePhysicalAi()]);
   const roleMap = roleModelMap(tokenFactory);
   return Response.json({
     product: 'Nirvana',
@@ -25,10 +26,11 @@ export async function GET() {
     },
     tokenFactoryRoles: roleMap,
     sandbox: { provider: 'ConTree (Early Access)', capabilities: contreeCapabilities(), executionAuthorized: false },
+    physicalAi: { provider: 'Nebius Physical AI Workbench (NPA)', mode: 'sim-only / hardware-gated', capabilities: physicalAiCapabilities(), executionAuthorized: false },
     pipeline: ['Perception', 'Reasoning', 'Report', 'Action'],
     gatekeeper: 'JeV / --mev',
     execution: { authorized: false, reason: 'NO EXECUTION AUTHORIZED' },
     zkvm: { status: 'Planned / not configured', proofs: 0 },
-    connections: connectionRegistry({ nebius, tokenFactory, contree }),
+    connections: connectionRegistry({ nebius, tokenFactory, contree, physicalAi }),
   }, { headers: noStore });
 }
