@@ -112,7 +112,9 @@ test('input validation rejects bad requests', () => {
   assert.throws(() => startFlow(mem(), { title: 'x', description: 'y', repo: 'not a repo' }), /repo/);
 });
 
-test('flow module makes no network/inference calls', () => {
+test('flow module network path is single, injected, and opt-in gated', () => {
   const src = readFileSync(new URL('../lib/nirvana/sdlc-flow.mjs', import.meta.url), 'utf8');
-  assert.doesNotMatch(src, /fetch\(|chat\.completions|probe\(/);
+  assert.doesNotMatch(src, /[^l]fetch\(|probe\(/); // only fetchImpl( is used
+  assert.equal((src.match(/fetchImpl\(/g) || []).length, 1);
+  assert.match(src, /NIRVANA_SDLC_INFERENCE \|\| ''\)\.trim\(\) === '1'/);
 });

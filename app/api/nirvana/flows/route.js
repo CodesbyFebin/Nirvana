@@ -1,5 +1,5 @@
-import { startFlow, listFlows, STAGE_DEFS, FLOW_NOTICE } from '../../../../lib/nirvana/sdlc-flow.mjs';
-import { withNirvanaDb, jsonError, noStore } from '../../../../lib/nirvana/http.mjs';
+import { startFlowWithInference, listFlows, STAGE_DEFS, FLOW_NOTICE } from '../../../../lib/nirvana/sdlc-flow.mjs';
+import { withNirvanaDb, withNirvanaDbAsync, jsonError, noStore } from '../../../../lib/nirvana/http.mjs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,9 +19,9 @@ export async function POST(request) {
   try { body = await request.json(); } catch {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 });
   }
-  return withNirvanaDb((db) => {
+  return withNirvanaDbAsync(async (db) => {
     try {
-      return Response.json({ flow: startFlow(db, body) }, { status: 201, headers: noStore });
+      return Response.json({ flow: await startFlowWithInference(db, body) }, { status: 201, headers: noStore });
     } catch (error) {
       return jsonError(error);
     }

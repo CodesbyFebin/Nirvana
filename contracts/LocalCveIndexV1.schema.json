@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nirvana/LocalCveIndexV1",
+  "title": "LocalCveIndexV1 (Planned) — offline CVE cross-reference catalog, operator-imported",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "source", "entries"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "const": "LocalCveIndexV1" },
+    "source": { "type": "string" },
+    "generated_at": { "type": ["string", "null"] },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cve_id"],
+        "properties": {
+          "cve_id": { "type": "string", "pattern": "^CVE-\\d{4}-\\d{4,}$" },
+          "product": { "type": "string" },
+          "versions": { "type": "array", "items": { "type": "string" } },
+          "severity": { "enum": ["none", "low", "medium", "high", "critical", "unknown"] },
+          "summary": { "type": "string", "maxLength": 2000 }
+        }
+      }
+    }
+  }
+}

@@ -157,3 +157,18 @@ How it differs from the other Nebius planes:
 - **ConTree** (`contree-sandbox`) — VM-isolated, git-branching sandboxes for agent code execution.
 - **Token Factory** (`nebius-token-factory`) — managed OpenAI-compatible Nemotron inference (NPA workflows can also call it).
 - **NPA Workbench** (`nebius-physical-ai`) — GPU workflow control plane for simulation, policy training, synthetic data, evaluation.
+
+## Edge-Sentinel / MetaPen → air-gapped edge mode (`edge-sentinel-airgap`)
+
+Defensive, blue-team capabilities for Edge-Sentinel and MetaPen, all **Unconnected / Planned**:
+air-gapped edge mode with a local knowledge base, an offline `LocalCveIndexV1` catalog (empty seed),
+a discovery **report** plane (ingests inventory of operator-owned networks; Nirvana runs no scanner),
+`EdgeHealthV1` Pi-class telemetry schema, a fail-closed sync bridge for EvidenceEnvelopes, and a
+blue-team security report template. No wireless, exploit, or unauthorized-access tooling exists in
+this repo. See [docs/nirvana/EDGE-SENTINEL-AIRGAP.md](docs/nirvana/EDGE-SENTINEL-AIRGAP.md).
+
+## Nebius console surfaces
+
+Job vs Endpoint vs DevLab vs Token Factory vs k8s-inference, plus the console "Copy MCP server"
+operator path: [docs/nirvana/NEBIUS-CONSOLE-SURFACES.md](docs/nirvana/NEBIUS-CONSOLE-SURFACES.md).
+`nebius-jobs` / `nebius-endpoints` connection rows are status-only — nothing is provisioned.

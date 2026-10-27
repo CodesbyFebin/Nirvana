@@ -28,7 +28,9 @@
     "mode": {
       "enum": [
         "dry-run",
-        "inference"
+        "inference",
+        "live",
+        "dry-run-fallback"
       ]
     },
     "role": {

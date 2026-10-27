@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nirvana/EdgeHealthV1",
+  "title": "EdgeHealthV1 (Planned) — Pi-class edge device health sample",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "device_id", "observed_at", "cpu", "network", "boot_log"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "device_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "cpu": { "type": "object", "properties": { "load_pct": { "type": ["number", "null"] }, "temp_c": { "type": ["number", "null"] } } },
+    "network": { "type": "object", "properties": { "online": { "type": "boolean" }, "rx_bytes": { "type": ["integer", "null"] }, "tx_bytes": { "type": ["integer", "null"] } } },
+    "boot_log": { "type": "array", "maxItems": 200, "items": { "type": "string", "maxLength": 500 } },
+    "airgapped": { "type": "boolean" }
+  }
+}

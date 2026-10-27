@@ -37,3 +37,25 @@ No real commits, merge requests, patches, deploys, scans, or test runs happen.
 Console: `/nirvana` → **SDLC Flow**.
 
 Prior art: multi-agent SDLC flows (e.g. public hackathon projects).
+
+## Token Factory connection (opt-in live stages)
+
+Live inference runs **only** when both are set:
+
+- `NEBIUS_API_KEY` (Token Factory key), and
+- `NIRVANA_SDLC_INFERENCE=1` (explicit opt-in — this is spend).
+
+Then `startFlowWithInference()` (used by `POST /api/nirvana/flows`) makes **at most one**
+`chat.completions` call per stage, using the role map: Planner/Architect → Ultra,
+Coder/Tester → Super, Security/Compliance/Deployer/GreenOps → Lightning.
+
+| Stage `mode` | Meaning |
+| --- | --- |
+| `dry-run` | No key or no opt-in; deterministic template only, no network. |
+| `live` | Template structure + live completion text in `body.inference.text`. |
+| `dry-run-fallback` | Call failed / timed out (~20 s) / empty; template output, error recorded. |
+
+Honesty rules:
+- Only API-reported token usage is recorded (`body.inference.usage`, `source: api-reported`), else `null`. `measured` stays `false`; no latency/cost/quality claims.
+- Live text is a proposal. Commit / MR / patch / deploy remain JeV approvals — **NO EXECUTION AUTHORIZED**.
+- Tests mock `fetch`; no real network call runs in the suite.
