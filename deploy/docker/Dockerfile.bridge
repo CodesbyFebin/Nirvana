@@ -1,0 +1,15 @@
+# syntax=docker/dockerfile:1
+#
+# MetaPen — Central Brain bridge (bridge.mjs on 127.0.0.1:4173).
+# Trivial Node service exposing /api/health, /api/run, /api/events, /api/approval,
+# /api/stop (see docs/METAPEN_BLUEPRINT.md for the protocol). This Dockerfile is
+# a minimal placeholder; bridge.mjs is wired in the app layer.
+FROM node:24-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev || npm install --omit=dev || true
+COPY . .
+EXPOSE 4173
+# Bind loopback only by default; expose via Service/mTLS deliberately.
+ENV METAPEN_BRIDGE_HOST=127.0.0.1 METAPEN_BRIDGE_PORT=4173
+CMD ["node", "bridge.mjs"]

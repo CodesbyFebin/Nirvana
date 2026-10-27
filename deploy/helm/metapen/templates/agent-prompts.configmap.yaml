@@ -1,0 +1,20 @@
+# Rendered from the generated roster file. Regenerate with:
+#   node deploy/scripts/gen-agent-prompts.mjs
+# then keep this template in sync, OR load the standalone ConfigMap directly.
+# To avoid duplicating 500 keys here, we load the generated file at render time.
+{{- $raw := .Files.Get "files/agent-prompts.data.yaml" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-agent-prompts
+  labels:
+    {{- include "metapen.labels" . | nindent 4 }}
+data:
+{{- if $raw }}
+{{ $raw | indent 2 }}
+{{- else }}
+  # NOTE: files/agent-prompts.data.yaml not found at package time.
+  # Run: node deploy/scripts/gen-agent-prompts.mjs and copy the `data:` block
+  # into deploy/helm/metapen/files/agent-prompts.data.yaml before packaging.
+  _placeholder: "run gen-agent-prompts.mjs to populate 500 keys"
+{{- end }}

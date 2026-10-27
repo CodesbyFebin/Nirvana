@@ -1,0 +1,97 @@
+# MetaPen — agent pod template (one sandboxed agent = one tool).
+# Hardware isolation via Kata Containers -> Firecracker microVM per pod.
+# Two containers share an emptyDir at /var/log/exec:
+#   - tool-executor   : the custom Kali image, runs the mastered tool
+#   - zk-proof-sidecar: PLANNED — currently only SHA256-hashes exec logs.
+#                       Real Groth16 zk proofs are a FUTURE layer (not implemented).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: metapen-agent-TEMPLATE   # templated per index by the Job / Helm
+  labels:
+    app.kubernetes.io/name: metapen
+    app.kubernetes.io/component: agent
+    metapen.io/scope: owned-lab
+  annotations:
+    metapen.io/zkvm: "planned"   # honest: no real proofs yet
+spec:
+  runtimeClassName: kata         # Firecracker microVM isolation
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  serviceAccountName: metapen-agent
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+    - name: exec-logs
+      emptyDir: {}              # shared /var/log/exec between the two containers
+    - name: scope
+      secret:
+        secretName: metapen-scope   # scope.yaml / auth file (REQUIRED)
+    - name: agent-prompts
+      configMap:
+        name: metapen-agent-prompts
+  containers:
+    - name: tool-executor
+      image: ghcr.io/metapen/kali-agent:latest   # override via Helm values
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: METAPEN_AGENT_INDEX
+          value: "0"           # 0..499, set per pod
+        - name: METAPEN_SCOPE_FILE
+          value: /etc/metapen/scope.yaml
+      resources:
+        requests:
+          cpu: "1"
+          memory: 512Mi
+        limits:
+          cpu: "1"
+          memory: 2Gi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: exec-logs
+          mountPath: /var/log/exec
+        - name: scope
+          mountPath: /etc/metapen
+          readOnly: true
+        - name: agent-prompts
+          mountPath: /etc/metapen/prompts
+          readOnly: true
+    - name: zk-proof-sidecar
+      # PLANNED LAYER — stub only. Hashes new log lines with SHA256 and writes a
+      # receipt. It does NOT produce zero-knowledge proofs yet; Groth16/KECCAK256
+      # anchoring to Qdrant + (future) Celestia DA is a roadmap item.
+      image: alpine:3.20
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          echo "[zk-sidecar] PLANNED: SHA256 log hashing only; no real zk proof.";
+          apk add --no-cache coreutils >/dev/null 2>&1 || true;
+          while true; do
+            if [ -f /var/log/exec/agent.log ]; then
+              sha256sum /var/log/exec/agent.log > /var/log/exec/receipt.sha256;
+            fi;
+            sleep 10;
+          done
+      resources:
+        requests:
+          cpu: "50m"
+          memory: 64Mi
+        limits:
+          cpu: "200m"
+          memory: 128Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        runAsUser: 1000
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: exec-logs
+          mountPath: /var/log/exec

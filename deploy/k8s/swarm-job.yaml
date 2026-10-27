@@ -1,0 +1,90 @@
+# MetaPen — swarm Job. 500 agent runs, 50 at a time.
+# parallelism: 50 (concurrency limiter — prevents WAF triggers & hardware melt)
+# completions: 500 (the full agent roster; each index pulls its prompt by key).
+# NOTE: the active-concurrency "32 active / 500 pooled" cap from the blueprint is
+# an application-layer limiter in the Dragon Router; this Job's parallelism:50 is
+# the Kubernetes-level batch cap. Tune together.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: metapen-swarm
+  labels:
+    app.kubernetes.io/name: metapen
+    app.kubernetes.io/component: swarm
+spec:
+  parallelism: 50
+  completions: 500
+  completionMode: Indexed   # JOB_COMPLETION_INDEX = agent index 0..499
+  backoffLimit: 0
+  activeDeadlineSeconds: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: metapen
+        app.kubernetes.io/component: agent
+        metapen.io/scope: owned-lab
+    spec:
+      runtimeClassName: kata
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      serviceAccountName: metapen-agent
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: exec-logs
+          emptyDir: {}
+        - name: scope
+          secret:
+            secretName: metapen-scope
+        - name: agent-prompts
+          configMap:
+            name: metapen-agent-prompts
+      containers:
+        - name: tool-executor
+          image: ghcr.io/metapen/kali-agent:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "[metapen] agent index ${JOB_COMPLETION_INDEX}";
+              # Map the numeric index -> its prompt key is done by the Central
+              # Brain; prompts are mounted read-only at /etc/metapen/prompts.
+              exec /usr/local/bin/entrypoint.sh --run-index "${JOB_COMPLETION_INDEX}"
+          env:
+            - name: METAPEN_SCOPE_FILE
+              value: /etc/metapen/scope.yaml
+          resources:
+            requests: { cpu: "1", memory: 512Mi }
+            limits: { cpu: "1", memory: 2Gi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - { name: exec-logs, mountPath: /var/log/exec }
+            - { name: scope, mountPath: /etc/metapen, readOnly: true }
+            - { name: agent-prompts, mountPath: /etc/metapen/prompts, readOnly: true }
+        - name: zk-proof-sidecar
+          image: alpine:3.20
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "[zk-sidecar] PLANNED: SHA256 only, no real zk proof.";
+              while true; do
+                [ -f /var/log/exec/agent.log ] && sha256sum /var/log/exec/agent.log > /var/log/exec/receipt.sha256;
+                sleep 10;
+              done
+          resources:
+            requests: { cpu: "50m", memory: 64Mi }
+            limits: { cpu: "200m", memory: 128Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - { name: exec-logs, mountPath: /var/log/exec }

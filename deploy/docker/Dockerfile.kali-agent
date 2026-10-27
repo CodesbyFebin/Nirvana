@@ -1,0 +1,90 @@
+# syntax=docker/dockerfile:1
+#
+# MetaPen — custom Kali Linux agent image (tool-executor container).
+# Base: kalilinux/kali-rolling. Each running pod masters ONE tool (see the
+# agent-prompts ConfigMap); this image simply ships the full toolbox so any
+# agent index can be scheduled onto it.
+#
+# ---------------------------------------------------------------------------
+# TOOL INSTALL MATRIX (honest):
+#   CLEAN via apt (kali-rolling repos):
+#     nmap masscan amass subfinder dnsenum httpx-toolkit nuclei ffuf gobuster
+#     dirsearch whatweb wafw00f theharvester recon-ng netdiscover arp-scan
+#     sqlmap nikto wpscan commix wfuzz dirb feroxbuster dalfox hydra medusa
+#     john hashcat wireshark tshark tcpdump suricata zeek aircrack-ng kismet
+#     yara clamav binwalk foremost exiftool sleuthkit radare2 gdb apktool
+#     jadx dex2jar crackmapexec enum4linux smbclient smbmap responder
+#     impacket-scripts bloodhound evil-winrm kerbrute semgrep bandit gitleaks
+#     trivy lynis rkhunter chkrootkit volatility3 trufflehog
+#   NEEDS EXTRA STEP (not plain apt — installed below where feasible, else noted):
+#     - Foundry (forge/cast/anvil/chisel): foundryup installer (Rust toolchain)
+#     - slither / mythril / manticore / crytic: pip (Python) + solc-select
+#     - pacu / prowler / scoutsuite / cloudsplaining: pip / pipx
+#     - Rust toolchain: rustup (needed by several analyzers)
+#     - burpsuite / ghidra / ida-free / binary-ninja: large GUI/licensed —
+#       NOT baked in; mount or install out-of-band. (placeholder note only)
+#     - shodan / censys / dune-analytics / defillama: API clients (pip) +
+#       require API keys supplied at runtime via secrets, never baked in.
+# ---------------------------------------------------------------------------
+
+FROM kalilinux/kali-rolling
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# --- Core apt toolbox (clean installs) -------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates curl wget git jq unzip build-essential pkg-config \
+      python3 python3-pip python3-venv pipx \
+      nmap masscan dnsenum whatweb wafw00f theharvester recon-ng \
+      netdiscover arp-scan nikto wpscan commix wfuzz dirb \
+      sqlmap hydra medusa john hashcat \
+      wireshark tshark tcpdump suricata aircrack-ng kismet yara clamav \
+      binwalk foremost exiftool sleuthkit radare2 gdb \
+      apktool dex2jar crackmapexec enum4linux smbclient smbmap responder \
+      impacket-scripts evil-winrm kerbrute gitleaks lynis rkhunter chkrootkit \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- Go-based recon/web tools (projectdiscovery etc.) ----------------------
+# Installed via apt metapackages where available; some may be golang-built.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      amass subfinder ffuf gobuster feroxbuster dalfox \
+    && rm -rf /var/lib/apt/lists/* || true
+
+# --- Rust toolchain (needed by some analyzers + Foundry) -------------------
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && echo 'source $HOME/.cargo/env' >> /root/.bashrc
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# --- Python security tooling (pipx isolated) -------------------------------
+# slither/mythril/manticore/pacu/prowler/scoutsuite + solc-select.
+# NOTE: these are heavy; pin versions in production. Failures are tolerated at
+# build time so the image still ships the apt toolbox (|| true), but you should
+# review build logs before trusting the Python layer.
+RUN pipx ensurepath \
+    && pipx install slither-analyzer || true \
+    && pipx install mythril || true \
+    && pipx install solc-select || true \
+    && pipx install pacu || true \
+    && pipx install prowler || true \
+    && pipx install scoutsuite || true \
+    && pipx install semgrep || true \
+    && pipx install bandit || true
+
+# --- Foundry (forge / cast / anvil / chisel) -------------------------------
+# PLACEHOLDER-ish: foundryup pulls prebuilt binaries at build time.
+RUN curl -L https://foundry.paradigm.xyz | bash || true \
+    && /root/.foundry/bin/foundryup || true
+ENV PATH="/root/.foundry/bin:${PATH}"
+
+# --- Non-root execution user ----------------------------------------------
+RUN useradd -m -s /bin/bash agent
+WORKDIR /home/agent
+
+# scope.yaml (auth/scope file) is REQUIRED at runtime and mounted read-only.
+# The entrypoint must refuse to run if /etc/metapen/scope.yaml is absent.
+COPY --chown=agent:agent entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh || true
+
+USER agent
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["--help"]

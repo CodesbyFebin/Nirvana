@@ -1,0 +1,51 @@
+# MetaPen Helm values.
+image:
+  repository: ghcr.io/metapen/kali-agent
+  tag: latest
+  pullPolicy: IfNotPresent
+
+bridge:
+  repository: ghcr.io/metapen/bridge
+  tag: latest
+
+# Kubernetes batch concurrency for the swarm Job.
+swarm:
+  parallelism: 50     # pods running at once (WAF / hardware-melt guard)
+  completions: 500    # full agent roster
+  # Application-layer active-concurrency cap enforced by the Dragon Router.
+  concurrencyCap: 32  # "32 active / 500 pooled"
+
+resources:
+  requests:
+    cpu: "1"
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 2Gi
+
+# Scope is law. owned-lab only.
+scope: owned-lab
+ownedLabCidr: "10.100.0.0/16"   # REPLACE with your authorized range
+
+runtimeClassName: kata
+
+# zkVM receipts: PLANNED. Keep disabled — sidecar only SHA256-hashes logs.
+zkvm:
+  enabled: false
+  mode: planned   # honest marker; no real Groth16 proofs
+
+# Optional backing services (off by default).
+receipts:
+  qdrant:
+    enabled: false
+    url: ""
+  redis:
+    enabled: false
+    url: ""
+  s3:
+    enabled: false
+    bucket: ""
+
+serviceAccount:
+  create: true
+  name: metapen-agent

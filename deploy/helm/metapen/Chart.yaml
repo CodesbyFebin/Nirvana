@@ -1,0 +1,17 @@
+apiVersion: v2
+name: metapen
+description: >-
+  MetaPen — self-hostable AI pentesting swarm. 10 claws x 50 agents = 500
+  sandboxed, one-tool-per-agent workers on Kata/Firecracker microVMs, a JeV
+  (--mev) human approval gate, and PLANNED zkVM hash receipts. Lab-only.
+type: application
+version: 0.1.0
+appVersion: "5.0"
+keywords: [security, pentesting, swarm, kata, kubernetes]
+home: https://github.com/CodesbyFebin/Jules-Claw
+maintainers:
+  - name: MetaPen
+annotations:
+  metapen.io/honest-status: >-
+    zkVM proofs are PLANNED (not implemented); agent/tool counts include
+    clearly-marked placeholder slots; review scope before any real use.

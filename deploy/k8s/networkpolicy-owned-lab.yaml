@@ -1,0 +1,35 @@
+# MetaPen — restrictive egress policy enforcing the owned-lab / restricted scope.
+# Default-deny all ingress; egress limited to DNS + an explicit owned-lab CIDR.
+# EDIT the ipBlock below to match YOUR authorized lab range before use.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: metapen-owned-lab
+  labels:
+    app.kubernetes.io/name: metapen
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: agent
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []    # default-deny all ingress to agent pods
+  egress:
+    # Allow DNS resolution only.
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow traffic ONLY to the authorized owned-lab CIDR (edit this!).
+    - to:
+        - ipBlock:
+            cidr: 10.100.0.0/16        # <-- REPLACE with your owned-lab range
+            except:
+              - 169.254.169.254/32     # block cloud metadata endpoint
+      ports:
+        - protocol: TCP
+        - protocol: UDP
