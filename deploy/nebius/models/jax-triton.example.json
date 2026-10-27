@@ -1,0 +1,28 @@
+{
+  "_comment": "EXAMPLE ONLY — replace image with a digest-pinned Triton+JAX image the operator builds. Do not POST from Nirvana without a future JeV-gated qualify path. Grounded in nebius-solutions-library k8s-inference POST /v1/models.",
+  "id": "nirvana-jax-triton",
+  "kind": "endpoint",
+  "image": "REPLACE_ME/triton-jax:REPLACE_WITH_DIGEST",
+  "args": [],
+  "env": {
+    "MODEL_NAME": "jax-serve"
+  },
+  "port": 8000,
+  "protocol": "http",
+  "gpu": {
+    "count": 1,
+    "classes": ["h100", "a100"]
+  },
+  "scaling": {
+    "min": 0,
+    "max": 2,
+    "container_concurrency": 1,
+    "idle_s": 60
+  },
+  "regions": ["eu-north1"],
+  "readiness": {
+    "path": "/v2/health/ready",
+    "port": 8000
+  },
+  "scaleToZero": true
+}

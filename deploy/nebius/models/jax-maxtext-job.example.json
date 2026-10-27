@@ -1,0 +1,25 @@
+{
+  "_comment": "EXAMPLE ONLY — MaxText / NVIDIA JAX Toolbox Job on Nebius k8s-inference (container-run style). Prefer H100. Pin ghcr.io/nvidia/jax:maxtext (or fork) to a digest. Not JetStream (TPU). Do not submit from Nirvana without JeV-gated qualify.",
+  "id": "nirvana-jax-maxtext",
+  "kind": "job",
+  "mode": "run",
+  "image": "ghcr.io/nvidia/jax:maxtext",
+  "image_digest_note": "Replace tag with @sha256:... before production use",
+  "command": ["bash", "-c", "python -m MaxText.train MaxText/configs/base.yml run_name=nirvana-example steps=10"],
+  "env": {
+    "CHECKPOINT_DIR": "/work/checkpoint",
+    "OPERATION": "{{operation}}"
+  },
+  "gpu": {
+    "count": 1,
+    "classes": ["h100"]
+  },
+  "cpu": "8",
+  "memory": "64Gi",
+  "disk_gi": 100,
+  "scratch": true,
+  "parameters": {
+    "prefer_gpu_class": "h100"
+  },
+  "regions": ["eu-north1"]
+}

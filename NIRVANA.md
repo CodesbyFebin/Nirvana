@@ -75,6 +75,27 @@ npm test
 
 Nirvana SQLite store defaults to `.jules-state/nirvana.sqlite` (override with `NIRVANA_DB_PATH`).
 
+## Nebius GPU inference (Planned)
+
+Scale / serve path for JAX on **NVIDIA GPUs** is grounded in the official Nebius Solution
+Library — especially [`k8s-inference/`](https://github.com/nebius/nebius-solutions-library/tree/main/k8s-inference)
+(Terraform/Helm fleet; models are any container via `POST /v1/models`; platform ships none).
+Training and GPU sharing live in `k8s-training/` and `gpu_slicing/` of the same library.
+
+Nirvana packaging choices (operator-built, digest-pinned):
+
+1. **Triton Inference Server + JAX Python backend** — sync HTTP endpoint (`kind: endpoint`)
+2. **NVIDIA JAX Toolbox / MaxText** (`ghcr.io/nvidia/jax:maxtext`) — long `container-run` Jobs  
+JetStream is primarily TPU and is **out of scope** for the Nebius NVIDIA path.
+
+Docs and stubs (no cloud apply from this repo):
+
+- `docs/nirvana/JAX-NVIDIA-NEBIUS.md` — runbook, Serverless AI vs fleet tradeoff, qualification checklist (all gates **pending**)
+- `deploy/nebius/` — README + example `POST /v1/models` bodies + `terraform.tfvars.nirvana.example`
+- `lib/nirvana/nebius-inference.mjs` — fail-closed **status/probe only** (`GET /v1/models`); Connected only when probe succeeds
+
+Env (optional, never commit secrets): `NEBIUS_INFERENCE_API_URL`, `NEBIUS_INFERENCE_API_KEY`.
+
 ## Still Planned / unimplemented
 
 Nebius Token Factory & serverless jobs · NVIDIA Nemotron catalog discovery · RISC Zero

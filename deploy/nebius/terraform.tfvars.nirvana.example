@@ -1,0 +1,25 @@
+# EXAMPLE ONLY — copy into a checkout of:
+#   https://github.com/nebius/nebius-solutions-library/k8s-inference
+# Do NOT apply terraform from the Nirvana repo. Fill real project IDs from your Nebius tenant.
+# Field names mirror upstream k8s-inference tfvars shape; confirm against that README before use.
+
+# name                 = "nirvana-fleet"
+# regions              = ["eu-north1"]
+# protect_data         = true
+#
+# One H100 pool Nirvana cares about for JAX MaxText / Triton serve:
+# gpu_pools = [
+#   {
+#     name       = "h100-ondemand"
+#     gpu_class  = "h100"
+#     capacity   = "on-demand"
+#     min_nodes  = 0
+#     max_nodes  = 2
+#     warm_nodes = 0
+#   }
+# ]
+#
+# After ./stack.sh apply + output:
+#   export NEBIUS_INFERENCE_API_URL=https://api.<control-host>
+#   export NEBIUS_INFERENCE_API_KEY=<tenant-key-from-stack-output>
+# Then Nirvana /api/nirvana/status may show nebius-inference Connected (probe-only).
