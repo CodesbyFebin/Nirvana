@@ -6,6 +6,11 @@
 > `NEBIUS_INFERENCE_API_URL` is set **and** a read-only probe of `GET /v1/models` succeeds.
 > JeV / `--mev` gatekeeper stays **NO EXECUTION AUTHORIZED**.
 
+> **Sibling path:** Managed Nemotron chat/completions live on **Nebius Token Factory**
+> (OpenAI-compatible), not on this k8s-inference fleet. See `docs/nirvana/TOKEN-FACTORY.md`
+> and https://github.com/nebius/token-factory-cookbook. This document covers **custom**
+> JAX/Triton/MaxText containers on the self-operated GPU fleet only.
+
 Upstream source of truth (do not vendor the Terraform tree into Nirvana):
 
 - https://github.com/nebius/nebius-solutions-library
@@ -90,3 +95,16 @@ for Muse-Claw / Dragon Router JAX workloads.
 - No fabricated GPU telemetry, no fake `VERIFIED` zkVM claims, no invented model catalog.
 - Local examples under `deploy/nebius/` are **templates**, not applied infrastructure.
 - Cloud execution and production readiness remain **unverified**.
+
+## Related: Token Factory vs this fleet
+
+Nirvana uses **both** as separate Planned connections:
+
+- **Token Factory** (`nebius-token-factory`) — managed Nemotron Ultra / Super / Lightning for
+  planner / coder / router roles. Cookbook: https://github.com/nebius/token-factory-cookbook
+  · Nirvana doc: `docs/nirvana/TOKEN-FACTORY.md` · env `NEBIUS_API_KEY`.
+- **This fleet** (`nebius-inference`) — custom JAX / Triton / MaxText containers via
+  solutions-library `k8s-inference/`. Env `NEBIUS_INFERENCE_API_URL`.
+
+Do not point Token Factory credentials at the fleet probe, or vice versa.
+

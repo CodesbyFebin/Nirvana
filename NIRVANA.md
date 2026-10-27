@@ -96,9 +96,27 @@ Docs and stubs (no cloud apply from this repo):
 
 Env (optional, never commit secrets): `NEBIUS_INFERENCE_API_URL`, `NEBIUS_INFERENCE_API_KEY`.
 
+## Nebius Token Factory — Nemotron roles (Planned / probe-only)
+
+Managed **OpenAI-compatible** inference for planner / coder / router roles. Distinct from the
+k8s-inference GPU fleet above (custom JAX/Triton containers).
+
+| Role | Logical default model ID | Status |
+|---|---|---|
+| planner (Brain) | `nvidia/Nemotron-3-Ultra-550b-a55b` | defaults_unverified until probe |
+| coder (Hands) | `nvidia/nemotron-3-super-120b-a12b` | defaults_unverified until probe |
+| router (Reflexes) | `nvidia/Nemotron-3_5-Lightning` | defaults_unverified until probe |
+
+- Cookbook: https://github.com/nebius/token-factory-cookbook
+- Doc: `docs/nirvana/TOKEN-FACTORY.md`
+- Adapter: `lib/nirvana/token-factory.mjs` — **GET /models only**; no `chat.completions` (no spend)
+- Env: `NEBIUS_API_KEY` (required), optional `NEBIUS_TOKEN_FACTORY_BASE_URL`
+  (default `https://api.tokenfactory.us-central1.nebius.com/v1/`)
+- Catalog rule: list models → map roles → **abort if configured ID missing** (no silent fallback)
+
 ## Still Planned / unimplemented
 
-Nebius Token Factory & serverless jobs · NVIDIA Nemotron catalog discovery · RISC Zero
+Token Factory chat/completions spend + serverless jobs · live Nemotron invoke (probe/list only today) · RISC Zero
 guest/host · independent verifier · Celestia DA · Kata GPU workers · MCP tool gateway ·
 encrypted TBAC memory · robot / simulator / OTA · OIDC multi-user tenancy · outbox /
 durable workflow controller · production deploy adapter.
