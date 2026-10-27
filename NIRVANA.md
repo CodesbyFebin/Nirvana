@@ -21,9 +21,9 @@ honest evidence — not four finished products and not GPU provisioning.
 
 | Track | Module | Status in this build |
 |---|---|---|
-| Coding & Agentic Engineering | **Muse-Claw DevOps** | Task intake + scope classification; coding runtime **not connected** |
-| Best Apps & Agents | **Dragon Router + JeV / --mev Gatekeeper** | Local deterministic scope policy + MetaPen 10-claw swarm console (concept counts); external execution **blocked** |
-| Personal AI | **Sentinel-Memory Vault** | Read-only “not connected” registry; no TBAC/encryption yet |
+| Coding & Agentic Engineering | **Muse-Claw DevOps** | Task intake + scope classification; coding runtime **not connected**. Example: OpenCode + Token Factory (not-run) |
+| Best Apps & Agents | **Dragon Router + JeV / --mev Gatekeeper** | Local deterministic scope policy + MetaPen 10-claw swarm console (concept counts); external execution **blocked**. Examples: Agentic Cost Benchmark (router), confidence-gated validation pattern (JeV) — not-run |
+| Personal AI | **Sentinel-Memory Vault** | Read-only “not connected” registry; no TBAC/encryption yet. Example: Deep Research Agent (Tavily + TF, not-run) |
 | Physical AI | **Edge-Sentinel Bridge** | Scalar torque-limit check only; simulation/hardware **disabled**. Planned backing: [Nebius Physical AI Workbench (NPA)](docs/nirvana/PHYSICAL-AI-NPA.md) — sim-only / hardware-gated |
 
 **MetaPen** (`/metapen`) is the security / swarm operator layer inside Nirvana
@@ -127,6 +127,8 @@ k8s-inference GPU fleet above (custom JAX/Triton containers).
 - Env: `NEBIUS_API_KEY` (required), optional `NEBIUS_TOKEN_FACTORY_BASE_URL`
   (default `https://api.tokenfactory.us-central1.nebius.com/v1/`)
 - Catalog rule: list models → map roles → **abort if configured ID missing** (no silent fallback)
+
+- Working examples (not-run): `docs/nirvana/TOKEN-FACTORY-EXAMPLES.md`
 
 ## Still Planned / unimplemented
 

@@ -1,6 +1,6 @@
 import { connectionRegistry } from '../../../../lib/nirvana/store.mjs';
 import { probe as probeNebius } from '../../../../lib/nirvana/nebius-inference.mjs';
-import { probe as probeTokenFactory, roleModelMap } from '../../../../lib/nirvana/token-factory.mjs';
+import { probe as probeTokenFactory, roleModelMap, examples as tokenFactoryExamples } from '../../../../lib/nirvana/token-factory.mjs';
 import { probe as probeContree, capabilities as contreeCapabilities } from '../../../../lib/nirvana/contree.mjs';
 import { probe as probeKvax, capabilities as kvaxCapabilities } from '../../../../lib/nirvana/kvax.mjs';
 import { probe as probePhysicalAi, capabilities as physicalAiCapabilities } from '../../../../lib/nirvana/physical-ai.mjs';
@@ -26,6 +26,7 @@ export async function GET() {
       jaxOnNvidia: 'Planned — MaxText Job and/or Triton JAX backend via Nebius k8s-inference; see docs/nirvana/JAX-NVIDIA-NEBIUS.md',
     },
     tokenFactoryRoles: roleMap,
+    tokenFactoryExamples: tokenFactoryExamples(),
     sandbox: { provider: 'ConTree (Early Access)', capabilities: contreeCapabilities(), executionAuthorized: false },
     kvax: { provider: 'kvax FlashAttention for JAX (Nebius)', gpuAcceleration: 'Planned / not configured', capabilities: kvaxCapabilities(), executionAuthorized: false },
     physicalAi: { provider: 'Nebius Physical AI Workbench (NPA)', mode: 'sim-only / hardware-gated', capabilities: physicalAiCapabilities(), executionAuthorized: false },

@@ -97,3 +97,10 @@ print([m.id for m in models.data][:20])
 - Adapter is **status / probe / role-map only**. No `chat.completions` in this PR.
 - Connection stays **Unconnected / Planned** without a successful probe.
 - Cloud execution and production readiness remain **unverified**.
+
+## Working examples
+
+Four upstream cookbook examples are mapped to Nirvana modules (all **not-run**) in
+[TOKEN-FACTORY-EXAMPLES.md](TOKEN-FACTORY-EXAMPLES.md): Deep Research → Sentinel-Memory,
+OpenCode → Muse-Claw DevOps, Agentic Cost Benchmark → Dragon Router, Confidence-gated
+validation → JeV / --mev (pattern). `examples()` in `lib/nirvana/token-factory.mjs` exposes them.
