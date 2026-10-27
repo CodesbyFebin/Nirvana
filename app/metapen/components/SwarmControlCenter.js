@@ -1,106 +1,75 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { CLAWS } from '../../../lib/claws.mjs';
+import { CLAWS, coverageMatrix } from '../../../lib/claws.mjs';
+import { theme } from './theme';
 import DragonCore from './DragonCore';
-import ClawCard, { ClawExpandPanel } from './ClawCard';
+import ClawCard from './ClawCard';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
-import MuseCliStrip from './MuseCliStrip';
-import { Badge, theme } from './theme';
 
-export default function SwarmControlCenter({ swarm, caps, jobs, onRefresh }) {
-  const [expandedId, setExpandedId] = useState(null);
-  const expanded = useMemo(() => CLAWS.find((c) => c.id === expandedId) || null, [expandedId]);
-  const pendingCount = (caps?.approvals || []).filter((a) => a.state === 'pending').length;
-  const jobCount = jobs?.length || 0;
-
-  function toggle(id) {
-    setExpandedId((cur) => (cur === id ? null : id));
-  }
-
-  // Arrange 10 claws: 5 left, 5 right of the brain (responsive stack on narrow).
-  const leftClaws = CLAWS.slice(0, 5);
-  const rightClaws = CLAWS.slice(5);
+export default function SwarmControlCenter({ swarm, caps, jobs, desk }) {
+  const claws = CLAWS;
+  const matrix = coverageMatrix();
+  const left = claws.slice(0, 5);
+  const right = claws.slice(5, 10);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      <div className="mp-swarm-grid" style={{
+    <div className="mp-swarm-grid" style={{
+      display: 'grid',
+      gridTemplateColumns: 'minmax(190px, 230px) minmax(0, 1fr) minmax(200px, 250px)',
+      gap: 10,
+      flex: 1,
+      minHeight: 0,
+      overflow: 'hidden',
+      padding: '0 10px',
+    }}>
+      <style>{`
+        @media (max-width: 1100px) {
+          .mp-swarm-grid { grid-template-columns: 1fr !important; overflow: auto !important; }
+          .mp-claw-orbit { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+
+      <LeftSidebar claws={claws} matrix={matrix} />
+
+      <div className="mp-claw-orbit" style={{
         display: 'grid',
-        gridTemplateColumns: '220px minmax(0, 1fr) 260px',
-        gap: 14,
-        alignItems: 'start',
+        gridTemplateColumns: 'minmax(130px, 1fr) minmax(190px, 260px) minmax(130px, 1fr)',
+        gap: 8,
+        alignItems: 'center',
+        minHeight: 0,
+        overflow: 'auto',
       }}>
-        <style>{`
-          @media (max-width: 1100px) {
-            .mp-swarm-grid { grid-template-columns: 1fr !important; }
-            .mp-claw-orbit { grid-template-columns: 1fr !important; }
-          }
-        `}</style>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {left.map((c) => <ClawCard key={c.id} claw={c} side="left" />)}
+        </div>
 
-        <LeftSidebar selectedId={expandedId} onSelect={toggle} />
-
-        <section style={{
-          background: theme.panel, border: `1px solid ${theme.panelBorder}`,
-          borderRadius: 14, padding: 14, minHeight: 520,
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          minHeight: 260, borderRadius: 12, padding: 8,
+          border: `1px solid ${theme.panelBorder}`,
+          background: 'radial-gradient(ellipse at center, rgba(8,40,56,0.55) 0%, rgba(2,10,16,0.15) 70%)',
+          boxShadow: 'inset 0 0 40px rgba(34,211,238,0.08)',
+          gap: 6,
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
-            <div>
-              <strong style={{ fontSize: 15, color: theme.accentSoft }}>Claw Swarm · Kali Dragon</strong>
-              <Badge tone="concept">concept layout</Badge>
-            </div>
-            <div style={{ fontSize: 11, color: theme.muted }}>
-              Live gateway roles: {swarm ? `${swarm.rolesConfigured}/${swarm.roleCount}` : '—'}
-              {swarm?.ready ? <Badge tone="live">ready</Badge> : <Badge tone="warn">not configured</Badge>}
-            </div>
+          <DragonCore />
+          <div style={{ fontSize: 9, color: theme.muted, textAlign: 'center' }}>
+            Live gateway: {swarm ? `${swarm.rolesConfigured}/${swarm.roleCount}` : '—'}
+            {swarm?.ready ? ' · ready' : ' · not configured'}
+            {typeof jobs?.length === 'number' ? ` · jobs ${jobs.length}` : ''}
           </div>
+        </div>
 
-          <div className="mp-claw-orbit" style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 240px 1fr',
-            gap: 12,
-            alignItems: 'center',
-          }}>
-            <div style={{ display: 'grid', gap: 8 }}>
-              {leftClaws.map((claw) => (
-                <ClawCard key={claw.id} claw={claw} expanded={expandedId === claw.id} onToggle={toggle} />
-              ))}
-            </div>
-
-            <div style={{ position: 'relative', padding: '20px 0 36px' }}>
-              {/* connector rays (decorative) */}
-              <svg viewBox="0 0 240 240" width="240" height="240" style={{ position: 'absolute', inset: 0, margin: 'auto', opacity: 0.35, pointerEvents: 'none' }} aria-hidden>
-                {Array.from({ length: 10 }).map((_, i) => {
-                  const a = (Math.PI * 2 * i) / 10 - Math.PI / 2;
-                  const x2 = 120 + Math.cos(a) * 110;
-                  const y2 = 120 + Math.sin(a) * 110;
-                  return <line key={i} x1="120" y1="120" x2={x2} y2={y2} stroke="#16a34a" strokeWidth="1" />;
-                })}
-              </svg>
-              <DragonCore />
-            </div>
-
-            <div style={{ display: 'grid', gap: 8 }}>
-              {rightClaws.map((claw) => (
-                <ClawCard key={claw.id} claw={claw} expanded={expandedId === claw.id} onToggle={toggle} />
-              ))}
-            </div>
-          </div>
-
-          {expanded ? <ClawExpandPanel claw={expanded} onClose={() => setExpandedId(null)} /> : null}
-
-          <p style={{ fontSize: 11, color: theme.concept, margin: '12px 0 0' }}>
-            ACTIVE / 50 counts and the 50-dot grids are concept/target agent slots. Named tools are a roster catalog;
-            unassigned slots are empty. Live advisory swarm remains the 6 gateway roles from /api/swarm.
-          </p>
-        </section>
-
-        <RightSidebar caps={caps} onRefresh={onRefresh} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {right.map((c) => <ClawCard key={c.id} claw={c} side="right" />)}
+        </div>
       </div>
 
-      <div style={{ marginTop: 12 }}>
-        <MuseCliStrip swarm={swarm} pendingCount={pendingCount} jobCount={jobCount} />
-      </div>
+      <RightSidebar
+        desk={desk}
+        verification={jobs?.length ? { summary: `${jobs.length} verification job(s) from /api/verification` } : null}
+        capabilities={caps}
+      />
     </div>
   );
 }

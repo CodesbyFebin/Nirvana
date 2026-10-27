@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import SwarmControlCenter from './components/SwarmControlCenter';
-import { Badge, theme } from './components/theme';
+import MuseCliStrip from './components/MuseCliStrip';
+import { Badge, theme, CONCEPT_FLEET } from './components/theme';
 
-const VIEWS = [
-  ['overview', 'Overview'],
-  ['swarm', 'Claw Swarm'],
-  ['jev', 'JeV Desk'],
+const NAV = [
+  ['command', 'Command'],
+  ['swarm', 'Swarm'],
+  ['coverage', 'Coverage'],
   ['evidence', 'Evidence'],
-  ['models', 'Models'],
 ];
 
 const PIPELINE = ['Perception', 'Reasoning', 'Report', 'Action'];
@@ -39,7 +39,7 @@ function Card({ title, children, right }) {
       padding: 16, marginBottom: 14,
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8, flexWrap: 'wrap' }}>
-        <h3 style={{ margin: 0, fontSize: 15, color: theme.accentSoft }}>{title}</h3>
+        <h3 style={{ margin: 0, fontSize: 15, color: theme.cyanSoft }}>{title}</h3>
         {right}
       </div>
       {children}
@@ -58,10 +58,21 @@ function Stat({ label, value, hint, concept }) {
       </div>
       <div style={{
         fontSize: 28, fontWeight: 700, marginTop: 4, fontVariantNumeric: 'tabular-nums',
-        color: concept ? '#94a3b8' : theme.accent,
+        color: concept ? '#94a3b8' : theme.cyan,
       }}>{value}</div>
       {hint ? <div style={{ fontSize: 11, color: theme.muted, marginTop: 4 }}>{hint}</div> : null}
     </div>
+  );
+}
+
+function StatusChip({ children, tone = 'cyan' }) {
+  const color = tone === 'green' ? theme.green : tone === 'warn' ? theme.warn : theme.cyanSoft;
+  return (
+    <span style={{
+      fontSize: 9, fontWeight: 700, letterSpacing: 0.5, padding: '5px 10px', borderRadius: 999,
+      border: `1px solid ${color}66`, color, background: 'rgba(2,14,22,0.85)',
+      whiteSpace: 'nowrap', boxShadow: `0 0 10px ${color}22`,
+    }}>{children}</span>
   );
 }
 
@@ -178,175 +189,167 @@ export default function MetaPenPage() {
     finally { setBusy(false); }
   }
 
-  const showOrbit = view === 'overview' || view === 'swarm';
+  const consoleView = view === 'swarm' || view === 'coverage';
 
   return (
-    <div style={{ minHeight: '100vh', background: theme.bg, color: theme.text, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div style={{
+      height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      background: `radial-gradient(ellipse at 50% 0%, #0a2a38 0%, ${theme.bg} 45%, ${theme.bgDeep} 100%)`,
+      color: theme.text, fontFamily: 'system-ui, -apple-system, sans-serif',
+    }}>
+      {/* TOP BAR */}
       <header style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
-        padding: '14px 20px', borderBottom: `1px solid ${theme.panelBorder}`, background: theme.panel,
+        display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
+        padding: '8px 14px', borderBottom: `1px solid ${theme.panelBorder}`,
+        background: 'rgba(2,12,20,0.92)', flexShrink: 0,
+        boxShadow: '0 0 24px rgba(34,211,238,0.08)',
       }}>
-        <div>
-          <a href="/" style={{ color: theme.accentSoft, textDecoration: 'none', fontSize: 13 }}>← Workspace</a>
-          <div style={{ marginTop: 4 }}>
-            <strong style={{ fontSize: 20, letterSpacing: 0.4 }}>MetaPen</strong>
-            <span style={{ color: theme.accent, marginLeft: 10, fontSize: 13 }}>AI Cybersecurity OS · control center</span>
-          </div>
-          <div style={{ fontSize: 12, color: theme.muted, marginTop: 2 }}>
-            “500 agents. One mission.” <em style={{ color: theme.concept }}>(concept / target — not a live agent pool)</em>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {PIPELINE.map((stage, i) => (
-            <span key={stage} style={{
-              fontSize: 11, padding: '4px 10px', borderRadius: 999,
-              border: `1px solid ${theme.panelBorder}`, color: theme.accentSoft, background: theme.tile,
-            }}>
-              {i + 1}. {stage}
-            </span>
+        <a href="/" style={{
+          textDecoration: 'none', fontWeight: 900, fontSize: 16, letterSpacing: 2,
+          background: 'linear-gradient(90deg, #67e8f9, #4ade80)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+        }}>METAPEN</a>
+
+        <nav style={{ display: 'flex', gap: 4 }}>
+          {NAV.map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setView(id)}
+              style={{
+                background: view === id ? 'rgba(8,40,56,0.95)' : 'transparent',
+                color: view === id ? theme.cyanSoft : theme.muted,
+                border: `1px solid ${view === id ? theme.panelBorderStrong : 'transparent'}`,
+                borderRadius: 6, padding: '6px 12px', cursor: 'pointer',
+                fontWeight: 700, fontSize: 11, letterSpacing: 0.4,
+                boxShadow: view === id ? theme.glowCyan : 'none',
+              }}
+            >{label}</button>
           ))}
+        </nav>
+
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginLeft: 'auto', alignItems: 'center' }}>
+          <StatusChip>{CONCEPT_FLEET.clans} CLANS / {CONCEPT_FLEET.specialists} SPECIALISTS</StatusChip>
+          <StatusChip tone="green">{CONCEPT_FLEET.working} WORKING</StatusChip>
+          <StatusChip>{CONCEPT_FLEET.queued} QUEUED</StatusChip>
+          <StatusChip>SCOPE: OWNED LAB</StatusChip>
+          <button
+            type="button"
+            onClick={refresh}
+            style={{
+              fontSize: 9, fontWeight: 800, letterSpacing: 0.6, padding: '6px 12px', borderRadius: 6,
+              border: `1px solid ${theme.panelBorderStrong}`, cursor: 'pointer',
+              background: 'linear-gradient(180deg, rgba(8,48,64,0.95), rgba(4,24,36,0.95))',
+              color: theme.cyanSoft, boxShadow: theme.glowCyan,
+            }}
+          >
+            OPERATOR CONSOLE
+          </button>
         </div>
       </header>
 
-      <nav style={{
-        display: 'flex', gap: 6, padding: '10px 20px', borderBottom: '1px solid #143024',
-        background: '#070f0b', flexWrap: 'wrap',
+      {error ? (
+        <div style={{
+          background: '#2a1212', borderBottom: '1px solid #7f1d1d', color: '#fecaca',
+          padding: '6px 14px', fontSize: 12, flexShrink: 0,
+        }}>{error}</div>
+      ) : null}
+
+      {/* MAIN */}
+      <main style={{
+        flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
+        overflow: consoleView ? 'hidden' : 'auto', padding: consoleView ? '8px 0 0' : 16,
+        maxWidth: consoleView ? 'none' : 1480, width: '100%', margin: consoleView ? 0 : '0 auto',
+        boxSizing: 'border-box',
       }}>
-        {VIEWS.map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setView(id)}
-            style={{
-              background: view === id ? '#14532d' : 'transparent',
-              color: view === id ? '#ecfdf5' : '#9cb5a6',
-              border: `1px solid ${view === id ? theme.accent : theme.panelBorder}`,
-              borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontWeight: 600, fontSize: 13,
-            }}
-          >{label}</button>
-        ))}
-        <button type="button" onClick={refresh} style={{
-          marginLeft: 'auto', background: theme.tile, color: theme.accentSoft, border: `1px solid ${theme.panelBorder}`,
-          borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: 12,
-        }}>Refresh data</button>
-      </nav>
-
-      <main style={{ padding: 16, maxWidth: 1480, margin: '0 auto' }}>
-        {error ? (
-          <div style={{
-            background: '#2a1212', border: '1px solid #7f1d1d', color: '#fecaca',
-            borderRadius: 8, padding: 12, marginBottom: 14, fontSize: 13,
-          }}>{error}</div>
+        {consoleView ? (
+          <SwarmControlCenter swarm={swarm} caps={caps} jobs={jobs} desk={desk} />
         ) : null}
 
-        {showOrbit ? (
+        {view === 'command' ? (
           <>
-            {view === 'overview' ? (
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
-                <Stat
-                  label="Gateway swarm roles"
-                  value={swarm ? `${swarm.rolesConfigured}/${swarm.roleCount}` : '—'}
-                  hint={swarm?.ready ? 'Live /api/swarm ready' : 'Not fully configured'}
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
+              <Stat
+                label="Gateway swarm roles"
+                value={swarm ? `${swarm.rolesConfigured}/${swarm.roleCount}` : '—'}
+                hint={swarm?.ready ? 'Live /api/swarm ready' : 'Not fully configured'}
+              />
+              <Stat
+                label="Approval records"
+                value={caps ? approvalCounts.total : '—'}
+                hint={caps ? `${approvalCounts.pending || 0} pending` : 'Store unreachable'}
+              />
+              <Stat
+                label="Verification jobs"
+                value={jobCounts.total}
+                hint={Object.entries(jobCounts).filter(([k]) => k !== 'total').map(([k, v]) => `${k}:${v}`).join(' · ') || 'none queued'}
+              />
+              <Stat
+                label="Specialist pool"
+                value={String(CONCEPT_FLEET.specialists)}
+                hint="Concept target fleet size"
+                concept
+              />
+            </div>
+            <Card title="Run advisory gateway review (live 6-role API)" right={<Badge tone="live">/api/swarm</Badge>}>
+              <form onSubmit={runSwarm}>
+                <textarea
+                  value={swarmPrompt}
+                  onChange={(e) => setSwarmPrompt(e.target.value)}
+                  maxLength={3000}
+                  rows={3}
+                  placeholder="Bounded task for six-role gateway review…"
+                  style={inputStyle}
                 />
-                <Stat
-                  label="Approval records"
-                  value={caps ? approvalCounts.total : '—'}
-                  hint={caps ? `${approvalCounts.pending || 0} pending` : 'Store unreachable'}
-                />
-                <Stat
-                  label="Verification jobs"
-                  value={jobCounts.total}
-                  hint={Object.entries(jobCounts).filter(([k]) => k !== 'total').map(([k, v]) => `${k}:${v}`).join(' · ') || 'none queued'}
-                />
-                <Stat
-                  label="Specialist pool"
-                  value="500"
-                  hint="Concept target fleet size"
-                  concept
-                />
-              </div>
-            ) : null}
-            <SwarmControlCenter swarm={swarm} caps={caps} jobs={jobs} onRefresh={refresh} />
-            {view === 'swarm' ? (
-              <Card title="Run advisory gateway review (live 6-role API)" right={<Badge tone="live">/api/swarm</Badge>}>
-                <form onSubmit={runSwarm}>
-                  <textarea
-                    value={swarmPrompt}
-                    onChange={(e) => setSwarmPrompt(e.target.value)}
-                    maxLength={3000}
-                    rows={3}
-                    placeholder="Bounded task for six-role gateway review…"
-                    style={inputStyle}
-                  />
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
-                    <button type="submit" disabled={busy || !swarmPrompt.trim()} style={btnStyle}>
-                      {busy ? 'Calling gateway…' : 'Confirm cost & run swarm'}
-                    </button>
-                    <span style={{ fontSize: 12, color: theme.muted }}>Separate from the 10-claw concept roster above.</span>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
+                  <button type="submit" disabled={busy || !swarmPrompt.trim()} style={btnStyle}>
+                    {busy ? 'Calling gateway…' : 'Confirm cost & run swarm'}
+                  </button>
+                  <span style={{ fontSize: 12, color: theme.muted }}>Separate from the 10-clan concept roster.</span>
+                </div>
+              </form>
+              {swarmResult ? (
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ fontSize: 12, color: theme.cyanSoft }}>
+                    actualCalls: {swarmResult.actualCalls}
+                    {swarmResult.reportedTokens != null ? ` · tokens: ${swarmResult.reportedTokens}` : ''}
                   </div>
-                </form>
-                {swarmResult ? (
-                  <div style={{ marginTop: 14 }}>
-                    <div style={{ fontSize: 12, color: theme.accentSoft }}>
-                      actualCalls: {swarmResult.actualCalls}
-                      {swarmResult.reportedTokens != null ? ` · tokens: ${swarmResult.reportedTokens}` : ''}
+                  <p style={{ fontSize: 12, color: theme.muted }}>{swarmResult.notice}</p>
+                  {(swarmResult.stages || []).map((stage) => (
+                    <pre key={stage.role} style={preStyle}>
+                      <strong>{stage.role}</strong> · {stage.model} · {stage.latencyMs}ms{'\n'}
+                      {stage.text}
+                    </pre>
+                  ))}
+                </div>
+              ) : null}
+            </Card>
+            <Card title="Model routing" right={<Badge tone="live">Corrected naming</Badge>}>
+              <p style={{ marginTop: 0, color: theme.muted, fontSize: 13 }}>
+                Pipeline: {PIPELINE.join(' → ')}. Muse Wonder / Muse Code / Graph Engine (no “Libra”).
+              </p>
+              <div style={{ display: 'grid', gap: 10 }}>
+                {MODELS.map((m) => (
+                  <div key={m.name} style={{
+                    ...tileStyle, display: 'grid', gridTemplateColumns: '160px 1fr', gap: 12,
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: theme.cyan }}>{m.name}</div>
+                      <div style={{ fontSize: 11, color: theme.cyanSoft, marginTop: 2 }}>{m.role}</div>
                     </div>
-                    <p style={{ fontSize: 12, color: theme.muted }}>{swarmResult.notice}</p>
-                    {(swarmResult.stages || []).map((stage) => (
-                      <pre key={stage.role} style={preStyle}>
-                        <strong>{stage.role}</strong> · {stage.model} · {stage.latencyMs}ms{'\n'}
-                        {stage.text}
-                      </pre>
-                    ))}
+                    <div style={{ fontSize: 12, color: theme.text }}>{m.detail}</div>
                   </div>
-                ) : null}
-              </Card>
-            ) : null}
-          </>
-        ) : null}
-
-        {view === 'jev' && (
-          <>
+                ))}
+              </div>
+            </Card>
             <Card
               title="JeV (MEV) approval desk"
-              right={<>
-                <Badge tone="live">HITL</Badge>
-                <span style={{ fontSize: 11, color: theme.muted, marginLeft: 8 }}>
-                  Scope: owned-lab · Network: restricted
-                </span>
-              </>}
+              right={<Badge tone="live">HITL</Badge>}
             >
               <p style={{ marginTop: 0, color: theme.muted, fontSize: 13 }}>
                 {caps?.notice || 'Capability store status loading…'}
-                {' '}Decide/consume remain local TTY only (<code>npm run approval</code> / <code>execute:approved</code>).
+                {' '}Decide/consume remain local TTY only (<code>npm run approval</code>).
               </p>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
-                <Stat label="Pending" value={approvalCounts.pending || 0} />
-                <Stat label="Approved" value={approvalCounts.approved || 0} />
-                <Stat label="Consumed" value={approvalCounts.consumed || 0} />
-                <Stat label="Rejected" value={approvalCounts.rejected || 0} />
-              </div>
-              <div style={{ fontSize: 12, color: '#9cb5a6', marginBottom: 8 }}>
-                Allowlisted: {(caps?.allowlisted || []).join(', ') || '—'}
-              </div>
-              <div style={{ maxHeight: 280, overflow: 'auto' }}>
-                {(caps?.approvals || []).length === 0 ? (
-                  <p style={{ color: theme.muted, fontSize: 13 }}>No approval rows yet.</p>
-                ) : (caps.approvals.map((row) => (
-                  <div key={row.id} style={{ ...tileStyle, marginBottom: 8 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                      <code style={{ fontSize: 12 }}>{row.id}</code>
-                      <span style={{ fontSize: 11, color: theme.accent }}>{row.state}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: theme.muted, marginTop: 4 }}>
-                      {row.action?.capability} · task {row.action?.taskId}
-                    </div>
-                    <div style={{ fontSize: 11, color: '#6b8575' }}>expires {row.expiresAt}</div>
-                  </div>
-                )))}
-              </div>
-            </Card>
-            <Card title="Request capability approval">
               <form onSubmit={requestCap} style={{ display: 'grid', gap: 10, maxWidth: 560 }}>
                 <label style={labelStyle}>
                   Capability
@@ -361,7 +364,7 @@ export default function MetaPenPage() {
                   </select>
                 </label>
                 <label style={labelStyle}>
-                  Task ID (8–96 [A-Za-z0-9_-])
+                  Task ID
                   <input
                     value={capForm.taskId}
                     onChange={(e) => setCapForm((f) => ({ ...f, taskId: e.target.value }))}
@@ -390,9 +393,9 @@ export default function MetaPenPage() {
               ) : null}
             </Card>
           </>
-        )}
+        ) : null}
 
-        {view === 'evidence' && (
+        {view === 'evidence' ? (
           <>
             <Card title="Verification jobs" right={<Badge tone="live">syntax · node-tests</Badge>}>
               {jobs.length === 0 ? (
@@ -430,46 +433,34 @@ export default function MetaPenPage() {
               ) : desk.items.slice(0, 30).map((item) => (
                 <div key={item.id || item.title} style={{ ...tileStyle, marginBottom: 8 }}>
                   <strong>{item.title}</strong>
-                  <span style={{ marginLeft: 8, fontSize: 11, color: theme.accentSoft }}>{item.status}</span>
+                  <span style={{ marginLeft: 8, fontSize: 11, color: theme.cyanSoft }}>{item.status}</span>
                   <div style={{ fontSize: 12, color: theme.muted, marginTop: 4, whiteSpace: 'pre-wrap' }}>{item.detail}</div>
                 </div>
               ))}
             </Card>
             <Card title="zkVM / Hash Receipts" right={<Badge tone="planned">Planned</Badge>}>
               <p style={{ margin: 0, color: theme.muted, fontSize: 13 }}>
-                No live proof claimed. zkVM receipt verification is a planned honesty boundary, not an active prover in this build.
-              </p>
-            </Card>
-            <Card title="Kali sandbox workers" right={<Badge tone="planned">Planned</Badge>}>
-              <p style={{ margin: 0, color: theme.muted, fontSize: 13 }}>
-                Lab Kali workers remain conceptual for this increment. Live isolation today is Docker verifier profiles only.
+                zkVM NOT CONFIGURED — No hash receipts yet. Planned honesty boundary, not an active prover.
               </p>
             </Card>
           </>
-        )}
-
-        {view === 'models' && (
-          <Card title="Model routing panel" right={<Badge tone="live">Corrected naming</Badge>}>
-            <p style={{ marginTop: 0, color: theme.muted, fontSize: 13 }}>
-              Pipeline: {PIPELINE.join(' → ')}. Muse names match Meta products where applicable;
-              Graph Engine is an internal tier label (not “Libra”).
-            </p>
-            <div style={{ display: 'grid', gap: 12 }}>
-              {MODELS.map((m) => (
-                <div key={m.name} style={{
-                  ...tileStyle, display: 'grid', gridTemplateColumns: '180px 1fr', gap: 12, alignItems: 'start',
-                }}>
-                  <div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: theme.accent }}>{m.name}</div>
-                    <div style={{ fontSize: 12, color: theme.accentSoft, marginTop: 4 }}>{m.role}</div>
-                  </div>
-                  <div style={{ fontSize: 13, color: '#c5d9cc' }}>{m.detail}</div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
+        ) : null}
       </main>
+
+      {/* BOTTOM CLI + FOOTER */}
+      <div style={{ flexShrink: 0 }}>
+        <MuseCliStrip />
+        <footer style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8,
+          padding: '4px 14px 6px', borderTop: `1px solid ${theme.panelBorder}`,
+          background: 'rgba(1,6,10,0.95)', fontSize: 9, color: theme.muted,
+        }}>
+          <span>METAPEN — Security Operations · Scope · Review · Evidence</span>
+          <span style={{ color: theme.concept }}>
+            UI visualization · Activity shown for presentations · {CONCEPT_FLEET.label} · live advisory swarm = 6 roles
+          </span>
+        </footer>
+      </div>
     </div>
   );
 }
@@ -495,8 +486,8 @@ const inputStyle = {
 };
 
 const btnStyle = {
-  background: theme.accentDim,
-  color: '#052e16',
+  background: theme.cyanDim,
+  color: '#022c22',
   border: 0,
   borderRadius: 8,
   padding: '10px 16px',
@@ -504,7 +495,7 @@ const btnStyle = {
   cursor: 'pointer',
 };
 
-const labelStyle = { display: 'block', fontSize: 12, color: '#9cb5a6' };
+const labelStyle = { display: 'block', fontSize: 12, color: theme.muted };
 
 const preStyle = {
   background: theme.bg,
@@ -514,7 +505,7 @@ const preStyle = {
   whiteSpace: 'pre-wrap',
   overflowWrap: 'anywhere',
   fontSize: 12,
-  color: '#d1fae5',
+  color: theme.greenSoft,
   maxHeight: 220,
   overflow: 'auto',
   marginTop: 8,

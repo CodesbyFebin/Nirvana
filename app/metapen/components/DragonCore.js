@@ -1,52 +1,107 @@
 'use client';
 
-import { Badge, theme } from './theme';
+import { theme } from './theme';
 
+/** CSS/SVG neon dragon emblem — approximate; no licensed art claimed. */
 export default function DragonCore() {
   return (
-    <div className="mp-dragon-wrap" style={{ position: 'relative', width: 220, height: 220, margin: '0 auto' }}>
+    <div className="mp-dragon-wrap" style={{
+      position: 'relative', width: '100%', maxWidth: 280, margin: '0 auto',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+    }}>
       <style>{`
-        @keyframes mp-pulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 24px #16a34a88, 0 0 60px #14532d66; }
-          50% { transform: scale(1.06); box-shadow: 0 0 40px #4ade80aa, 0 0 90px #16a34a55; }
+        @keyframes mp-dragon-pulse {
+          0%, 100% { filter: drop-shadow(0 0 12px rgba(34,211,238,0.55)) drop-shadow(0 0 28px rgba(74,222,128,0.35)); }
+          50% { filter: drop-shadow(0 0 22px rgba(34,211,238,0.85)) drop-shadow(0 0 48px rgba(74,222,128,0.5)); }
         }
-        @keyframes mp-float {
-          0%, 100% { transform: translateY(0); opacity: 0.85; }
-          50% { transform: translateY(-6px); opacity: 1; }
+        @keyframes mp-ring {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
-        .mp-core {
-          width: 140px; height: 140px; border-radius: 50%;
-          background: radial-gradient(circle at 35% 30%, #86efac, #16a34a 45%, #052e16 80%);
-          border: 2px solid #4ade80;
-          animation: mp-pulse 2.8s ease-in-out infinite;
-          display: flex; align-items: center; justify-content: center;
-          position: absolute; left: 40px; top: 40px; z-index: 2;
-        }
-        .mp-tag {
-          position: absolute; font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
-          padding: 3px 8px; border-radius: 999px; border: 1px solid #334155;
-          background: #0f172acc; color: #94a3b8; animation: mp-float 3.5s ease-in-out infinite;
-          white-space: nowrap; z-index: 3;
+        .mp-dragon-svg { animation: mp-dragon-pulse 3.2s ease-in-out infinite; }
+        .mp-orbit-ring {
+          position: absolute; inset: 18% 12%; border-radius: 50%;
+          border: 1px dashed rgba(34,211,238,0.25);
+          animation: mp-ring 48s linear infinite; pointer-events: none;
         }
       `}</style>
-      <span className="mp-tag" style={{ top: 8, left: 8, animationDelay: '0s' }}>SHA256</span>
-      <span className="mp-tag" style={{ top: 8, right: 4, animationDelay: '0.6s' }}>ZK-SNARK</span>
-      <span className="mp-tag" style={{ bottom: 18, left: 24, animationDelay: '1.1s' }}>VERIFIED</span>
-      <div className="mp-core" title="Kali Dragon — conceptual core">
-        <div style={{ textAlign: 'center', color: '#052e16', lineHeight: 1.15 }}>
-          <div style={{ fontSize: 36, filter: 'drop-shadow(0 0 4px #fff8)' }} aria-hidden>🐉</div>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 0.8 }}>KALI</div>
-          <div style={{ fontSize: 9, fontWeight: 700 }}>DRAGON</div>
+
+      <div style={{
+        textAlign: 'center', padding: '6px 14px', borderRadius: 8,
+        border: `1px solid ${theme.panelBorderStrong}`,
+        background: 'rgba(2,14,24,0.75)',
+        boxShadow: theme.glowCyan,
+      }}>
+        <div style={{
+          fontSize: 28, fontWeight: 800, letterSpacing: 2,
+          background: 'linear-gradient(90deg, #67e8f9, #4ade80, #22d3ee)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+        }}>MeTaPeN</div>
+        <div style={{ fontSize: 10, color: theme.cyanSoft, letterSpacing: 0.6, marginTop: 2 }}>
+          Muse Wonder / Neural Orchestration
         </div>
       </div>
-      <div style={{
-        position: 'absolute', bottom: -2, left: 0, right: 0, textAlign: 'center',
-        fontSize: 10, color: theme.concept, 'zIndex': 4,
-      }}>
-        <Badge tone="concept">concept</Badge>
-        <Badge tone="planned">Planned proofs</Badge>
-        <div style={{ marginTop: 4 }}>No live zkVM / hash proof claimed</div>
+
+      <div style={{ position: 'relative', width: 200, height: 200 }}>
+        <div className="mp-orbit-ring" />
+        <svg className="mp-dragon-svg" viewBox="0 0 200 200" width="200" height="200" aria-hidden>
+          <defs>
+            <radialGradient id="mpGlow" cx="50%" cy="45%" r="50%">
+              <stop offset="0%" stopColor="#67e8f9" stopOpacity="0.9" />
+              <stop offset="45%" stopColor="#22d3ee" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#022c22" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="mpBody" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#67e8f9" />
+              <stop offset="50%" stopColor="#22d3ee" />
+              <stop offset="100%" stopColor="#4ade80" />
+            </linearGradient>
+          </defs>
+          <circle cx="100" cy="100" r="78" fill="url(#mpGlow)" />
+          <circle cx="100" cy="100" r="62" fill="none" stroke="rgba(34,211,238,0.35)" strokeWidth="1.5" />
+          {/* Stylized S-curve dragon silhouette */}
+          <path
+            d="M58 128 C 52 96, 68 62, 98 54 C 128 46, 152 62, 148 88 C 144 112, 118 118, 108 102 C 98 86, 118 72, 136 78 C 158 86, 164 118, 142 140 C 120 162, 86 158, 70 140 C 62 132, 60 132, 58 128 Z"
+            fill="none" stroke="url(#mpBody)" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"
+          />
+          <path
+            d="M72 118 C 78 98, 96 88, 112 92 C 128 96, 134 112, 122 122 C 110 132, 90 128, 80 118"
+            fill="none" stroke="#4ade80" strokeWidth="2" opacity="0.85"
+          />
+          {/* Eye */}
+          <circle cx="118" cy="78" r="4" fill="#ecfeff" />
+          <circle cx="119" cy="77" r="1.6" fill="#022c22" />
+          {/* Circuit ticks */}
+          {Array.from({ length: 12 }).map((_, i) => {
+            const a = (Math.PI * 2 * i) / 12;
+            const x1 = 100 + Math.cos(a) * 70;
+            const y1 = 100 + Math.sin(a) * 70;
+            const x2 = 100 + Math.cos(a) * 78;
+            const y2 = 100 + Math.sin(a) * 78;
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(34,211,238,0.45)" strokeWidth="1.2" />;
+          })}
+        </svg>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <span style={chip}>SHA256 / RECEIPT HASH</span>
+        <span style={{ ...chip, borderColor: 'rgba(251,191,36,0.45)', color: theme.warn, boxShadow: '0 0 10px rgba(251,191,36,0.15)' }}>
+          ⚠ zkVM NOT CONFIGURED
+        </span>
       </div>
     </div>
   );
 }
+
+const chip = {
+  fontSize: 9,
+  fontWeight: 700,
+  letterSpacing: 0.5,
+  padding: '4px 10px',
+  borderRadius: 999,
+  border: `1px solid ${theme.panelBorder}`,
+  background: 'rgba(2,14,24,0.85)',
+  color: theme.cyanSoft,
+  boxShadow: theme.glowCyan,
+};

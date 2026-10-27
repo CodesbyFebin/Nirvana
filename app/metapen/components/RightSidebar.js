@@ -1,148 +1,126 @@
 'use client';
 
-import { useState } from 'react';
-import { Badge, theme } from './theme';
+import { theme, panelStyle, h3Style, Badge } from './theme';
 
-export default function RightSidebar({ caps, onRefresh }) {
-  const [risk, setRisk] = useState('Safe');
-  const [quorum, setQuorum] = useState({ a: false, b: false });
-  const approvals = caps?.approvals || [];
-  const pending = approvals.filter((a) => a.state === 'pending');
-  const pendingCount = pending.length;
+export default function RightSidebar({ desk, verification, capabilities }) {
+  const risk = 'Medium';
+  const pending = [
+    { id: 'p1', title: 'Scope review required' },
+    { id: 'p2', title: 'Approve lab validation' },
+  ];
 
   return (
-    <aside style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <section style={panel}>
-        <div style={{ fontSize: 11, color: theme.warn, fontWeight: 700, letterSpacing: 0.5 }}>
-          --mev / JeV Gatekeeper
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, height: '100%', overflow: 'auto' }}>
+      <section style={panelStyle}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+          <h3 style={{ ...h3Style, margin: 0 }}>--mev / JeV Gatekeeper</h3>
+        </div>
+        <div style={{ fontSize: 9, color: theme.muted, marginTop: 4, marginBottom: 8 }}>
+          Human oversight for high-impact actions.
         </div>
         <div style={{
-          marginTop: 6, padding: '8px 10px', borderRadius: 8,
-          background: pendingCount ? '#2a1a0a' : '#0a1a10',
-          border: `1px solid ${pendingCount ? '#854d0e' : theme.panelBorder}`,
-          fontSize: 12, fontWeight: 700, color: pendingCount ? theme.warn : theme.accent,
+          padding: '10px 12px', borderRadius: 8, textAlign: 'center',
+          background: theme.warnBg, border: `1px solid rgba(251,191,36,0.55)`,
+          color: theme.warn, fontWeight: 800, fontSize: 12, letterSpacing: 1,
+          boxShadow: '0 0 16px rgba(251,191,36,0.2)',
         }}>
-          {pendingCount ? 'AWAITING HUMAN REVIEW' : 'NO PENDING REVIEWS'}
-          <div style={{ fontSize: 11, fontWeight: 500, color: theme.muted, marginTop: 4 }}>
-            {pendingCount} pending · from /api/capabilities
-          </div>
+          NO EXECUTION AUTHORIZED
         </div>
-
-        <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 11, color: theme.muted, marginBottom: 6 }}>Risk posture</div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {['Safe', 'Medium', 'Critical'].map((level) => (
-              <button
-                key={level}
-                type="button"
-                onClick={() => setRisk(level)}
-                style={{
-                  flex: 1, padding: '6px 4px', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontWeight: 700,
-                  border: `1px solid ${risk === level ? theme.accent : theme.panelBorder}`,
-                  background: risk === level
-                    ? (level === 'Critical' ? '#450a0a' : level === 'Medium' ? '#422006' : '#052e16')
-                    : 'transparent',
-                  color: risk === level
-                    ? (level === 'Critical' ? '#fca5a5' : level === 'Medium' ? theme.warn : theme.accent)
-                    : theme.muted,
-                }}
-              >{level}</button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 11, color: theme.muted, marginBottom: 6 }}>
-            Two-reviewer quorum <Badge tone="concept">UI only</Badge>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {[['a', 'Reviewer A'], ['b', 'Reviewer B']].map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setQuorum((q) => ({ ...q, [key]: !q[key] }))}
-                style={{
-                  flex: 1, padding: 8, borderRadius: 8, cursor: 'pointer', fontSize: 11,
-                  border: `1px solid ${quorum[key] ? theme.accentDim : theme.panelBorder}`,
-                  background: quorum[key] ? '#052e16' : theme.tile, color: theme.text,
-                }}
-              >
-                {label}: {quorum[key] ? '✓' : '○'}
-              </button>
-            ))}
-          </div>
-          <div style={{ fontSize: 10, color: theme.concept, marginTop: 6 }}>
-            Quorum indicator is local UI state. Real decide/consume remains TTY (`npm run approval`).
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-          <button
-            type="button"
-            disabled={!quorum.a || !quorum.b || !pendingCount}
-            title="Remote approve is intentionally unavailable — use local TTY"
-            style={{
-              flex: 1, padding: 8, borderRadius: 8, fontWeight: 700, fontSize: 12,
-              background: quorum.a && quorum.b && pendingCount ? '#16a34a' : '#1f2937',
-              color: quorum.a && quorum.b && pendingCount ? '#052e16' : '#6b7280',
-              border: 0, cursor: 'not-allowed', opacity: 0.85,
-            }}
-          >Approve</button>
-          <button
-            type="button"
-            disabled={!pendingCount}
-            title="Remote reject is intentionally unavailable — use local TTY"
-            style={{
-              flex: 1, padding: 8, borderRadius: 8, fontWeight: 700, fontSize: 12,
-              background: '#1f2937', color: '#9ca3af', border: `1px solid #374151`,
-              cursor: 'not-allowed', opacity: 0.85,
-            }}
-          >Reject</button>
-        </div>
-        <button type="button" onClick={onRefresh} style={{
-          marginTop: 8, width: '100%', padding: 6, borderRadius: 6, cursor: 'pointer',
-          background: 'transparent', border: `1px solid ${theme.panelBorder}`, color: theme.accentSoft, fontSize: 11,
-        }}>Refresh approvals</button>
       </section>
 
-      <section style={panel}>
-        <h3 style={h3}>Pending queue</h3>
-        {pending.length === 0 ? (
-          <p style={{ fontSize: 11, color: theme.muted, margin: 0 }}>No pending rows in approval store.</p>
-        ) : pending.slice(0, 8).map((row) => (
-          <div key={row.id} style={{
-            marginBottom: 8, padding: 8, borderRadius: 8, background: theme.tile,
-            border: `1px solid ${theme.panelBorder}`, fontSize: 11,
-          }}>
-            <code style={{ fontSize: 10 }}>{row.id.slice(0, 8)}…</code>
-            <div style={{ color: theme.accentSoft }}>{row.action?.capability}</div>
-            <div style={{ color: theme.muted }}>expires {row.expiresAt}</div>
-          </div>
-        ))}
+      <section style={panelStyle}>
+        <h3 style={h3Style}>Pending Approval ({pending.length})</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {pending.map((p) => (
+            <div key={p.id} style={{
+              padding: '6px 8px', borderRadius: 6, fontSize: 10, color: theme.text,
+              background: 'rgba(2,14,22,0.7)', border: `1px solid ${theme.panelBorder}`,
+            }}>
+              {p.title}
+            </div>
+          ))}
+        </div>
       </section>
 
-      <section style={panel}>
-        <h3 style={h3}>Evidence Receipts</h3>
-        <p style={{ fontSize: 11, color: theme.muted, margin: '0 0 8px' }}>
-          Live verification jobs / desk notes appear under Evidence tab. Gatekeeper shows approval digests only.
-        </p>
+      <section style={panelStyle}>
+        <h3 style={h3Style}>Risk Level</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4 }}>
+          {['Safe', 'Medium', 'Critical'].map((level) => {
+            const active = level === risk;
+            const color = level === 'Safe' ? theme.green : level === 'Medium' ? theme.warn : theme.danger;
+            return (
+              <div key={level} style={{
+                textAlign: 'center', fontSize: 10, fontWeight: 700, padding: '8px 4px',
+                borderRadius: 6,
+                border: `1px solid ${active ? color : theme.panelBorder}`,
+                background: active ? `${color}22` : 'rgba(2,12,20,0.7)',
+                color: active ? color : theme.muted,
+                boxShadow: active ? `0 0 12px ${color}44` : 'none',
+              }}>{level}</div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section style={panelStyle}>
+        <h3 style={h3Style}>Two-Reviewer Quorum</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
+          {['Reviewer A', 'Reviewer B'].map((r) => (
+            <div key={r} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              fontSize: 10, padding: '6px 8px', borderRadius: 6,
+              background: 'rgba(2,14,22,0.7)', border: `1px solid ${theme.panelBorder}`,
+            }}>
+              <span style={{ color: theme.text }}>{r}</span>
+              <Badge tone="warn">Pending</Badge>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+          <button type="button" disabled style={disabledBtn}>Approve</button>
+          <button type="button" disabled style={{ ...disabledBtn, color: theme.danger, borderColor: 'rgba(248,113,113,0.35)' }}>
+            Reject
+          </button>
+        </div>
+        <div style={{ marginTop: 6, fontSize: 8, color: theme.concept }}>
+          Real approval stays on the TTY / capability gate — buttons are UI-only.
+        </div>
+      </section>
+
+      <section style={panelStyle}>
+        <h3 style={h3Style}>Evidence Receipts</h3>
+        <div style={{ fontSize: 10, color: theme.muted, lineHeight: 1.45 }}>
+          {verification?.summary || 'No verified evidence yet — Connect workers to begin assessment.'}
+        </div>
+        {desk?.path && (
+          <div style={{ marginTop: 6, fontSize: 8, color: theme.concept, wordBreak: 'break-all' }}>
+            desk: {desk.path}
+          </div>
+        )}
+      </section>
+
+      <section style={panelStyle}>
+        <h3 style={h3Style}>Hash Receipts</h3>
         <div style={{
-          padding: 10, borderRadius: 8, background: '#0a0f0c',
-          border: '1px dashed #334155', fontSize: 11, color: theme.concept,
+          fontSize: 10, color: theme.warn, lineHeight: 1.45,
+          padding: '8px', borderRadius: 6,
+          border: `1px dashed rgba(251,191,36,0.4)`,
+          background: 'rgba(66,32,6,0.25)',
         }}>
-          Hash Receipts · zkVM <Badge tone="planned">Planned</Badge>
-          <div style={{ marginTop: 6 }}>No live proof claimed — receipt verification is a future honesty layer.</div>
+          zkVM NOT CONFIGURED — No hash receipts yet.
         </div>
+        {capabilities?.models && (
+          <div style={{ marginTop: 8, fontSize: 9, color: theme.muted }}>
+            Models: {(capabilities.models || []).map((m) => m.name || m.id).filter(Boolean).slice(0, 3).join(' · ') || '—'}
+          </div>
+        )}
       </section>
-    </aside>
+    </div>
   );
 }
 
-const panel = {
-  background: theme.panel,
-  border: `1px solid ${theme.panelBorder}`,
-  borderRadius: 12,
-  padding: 12,
+const disabledBtn = {
+  fontSize: 10, fontWeight: 700, padding: '8px', borderRadius: 6, cursor: 'not-allowed',
+  opacity: 0.55, border: `1px solid ${theme.panelBorder}`,
+  background: 'rgba(2,14,22,0.85)', color: theme.greenSoft,
 };
-
-const h3 = { margin: '0 0 6px', fontSize: 13, color: theme.accentSoft };

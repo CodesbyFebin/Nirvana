@@ -1,98 +1,92 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import DotGrid from './DotGrid';
-import { Badge, theme } from './theme';
+import { useState } from 'react';
+import { theme, Badge } from './theme';
 
-export default function ClawCard({ claw, expanded, onToggle }) {
+const ICONS = {
+  RECON: '◎', WEB: '◈', API: '⬡', IDENTITY: '◈', SOURCE: '⟨⟩',
+  DEPENDENCIES: '⧉', CONFIG: '⚙', CLOUD: '☁', DEFENSE: '⛨', EVIDENCE: '▣',
+};
+
+export default function ClawCard({ claw, side = 'left' }) {
+  const [hover, setHover] = useState(false);
+  const tools = (claw.tools || []).filter((t) => t.assigned).slice(0, 4).map((t) => t.name);
+  const icon = ICONS[claw.domain] || '◆';
+  const filled = Math.max(1, Math.min(10, Math.ceil((claw.activeConcept / claw.capacity) * 10)));
+
   return (
-    <button
-      type="button"
-      onClick={() => onToggle(claw.id)}
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       style={{
-        textAlign: 'left', cursor: 'pointer', width: '100%',
-        background: expanded ? '#0c1f14' : theme.tile,
-        border: `1px solid ${expanded ? theme.accentDim : theme.panelBorder}`,
-        borderRadius: 10, padding: 10, color: theme.text,
-        boxShadow: expanded ? `0 0 16px #16a34a33` : 'none',
+        position: 'relative',
+        background: hover ? 'rgba(8,28,42,0.95)' : theme.tile,
+        border: `1px solid ${hover ? theme.panelBorderStrong : theme.panelBorder}`,
+        borderRadius: 8,
+        padding: '7px 9px',
+        boxShadow: hover ? theme.glowCyan : 'inset 0 0 0 1px rgba(34,211,238,0.04)',
+        transition: 'border-color 0.15s, box-shadow 0.15s, background 0.15s',
+        minHeight: 68,
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 6 }}>
-        <strong style={{ fontSize: 11, letterSpacing: 0.4, color: theme.accentSoft }}>
-          {claw.code} {claw.domain}
-        </strong>
-        <span style={{ fontSize: 10, color: theme.concept }}>
-          <span style={{ color: theme.accent, fontWeight: 700 }}>{claw.activeConcept}</span>
-          <span style={{ opacity: 0.7 }}> ACTIVE / {claw.capacity}</span>
-          <Badge tone="concept">concept</Badge>
-        </span>
-      </div>
-      <div style={{ marginTop: 8 }}>
-        <DotGrid claw={claw} cols={10} />
-      </div>
-      <div style={{ fontSize: 9, color: theme.muted, marginTop: 6 }}>
-        {claw.tools.filter((t) => t.assigned).length} named tools · click to expand
-      </div>
-    </button>
-  );
-}
-
-export function ClawExpandPanel({ claw, onClose }) {
-  const [q, setQ] = useState('');
-  const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    if (!needle) return claw.tools;
-    return claw.tools.filter((t) => t.name.toLowerCase().includes(needle) || t.mastery.toLowerCase().includes(needle));
-  }, [claw, q]);
-
-  return (
-    <div style={{
-      marginTop: 12, background: '#06140c', border: `1px solid ${theme.accentDim}`,
-      borderRadius: 12, padding: 14,
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <div>
-          <strong style={{ color: theme.accent }}>{claw.code} — {claw.domain}</strong>
-          <Badge tone="concept">concept roster</Badge>
-        </div>
-        <button type="button" onClick={onClose} style={{
-          background: 'transparent', border: `1px solid ${theme.panelBorder}`, color: theme.muted,
-          borderRadius: 6, padding: '4px 10px', cursor: 'pointer',
-        }}>Close</button>
-      </div>
-      <div style={{ margin: '12px 0' }}>
-        <DotGrid claw={claw} cols={10} large />
-      </div>
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search tools / mastery notes…"
-        style={{
-          width: '100%', boxSizing: 'border-box', background: '#050a07',
-          border: `1px solid ${theme.panelBorder}`, color: theme.text,
-          borderRadius: 8, padding: 8, fontSize: 12, marginBottom: 10,
-        }}
-      />
-      <div style={{ maxHeight: 260, overflow: 'auto', display: 'grid', gap: 6 }}>
-        {filtered.map((tool) => (
-          <div key={tool.id} style={{
-            display: 'grid', gridTemplateColumns: '28px 1fr', gap: 8,
-            padding: '6px 8px', borderRadius: 6,
-            background: tool.assigned ? '#0a1a10' : '#0a0a0a',
-            border: `1px solid ${tool.assigned ? '#1f3f2c' : '#222'}`,
-            opacity: tool.assigned ? 1 : 0.55,
-          }}>
-            <span style={{ fontSize: 10, color: theme.muted, fontVariantNumeric: 'tabular-nums' }}>{tool.slot}</span>
-            <div>
-              <div style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', color: tool.assigned ? theme.accentSoft : theme.muted }}>
-                {tool.name}
-                {!tool.assigned ? <Badge tone="muted">unassigned</Badge> : null}
-              </div>
-              <div style={{ fontSize: 11, color: theme.muted, marginTop: 2 }}>{tool.mastery}</div>
-            </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+        <span style={{
+          width: 22, height: 22, borderRadius: '50%', display: 'grid', placeItems: 'center',
+          border: `1px solid ${theme.panelBorder}`, color: theme.cyan, fontSize: 11,
+          background: 'rgba(2,20,32,0.8)', flexShrink: 0,
+          boxShadow: '0 0 8px rgba(34,211,238,0.25)',
+        }}>{icon}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 0.6, color: theme.text }}>
+              {claw.domain} CLAN
+            </span>
+            <Badge tone="working">WORKING</Badge>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+            <div style={{ display: 'flex', gap: 2 }}>
+              {Array.from({ length: 10 }).map((_, i) => (
+                <span key={i} style={{
+                  width: 5, height: 5, borderRadius: 1,
+                  background: i < filled ? theme.cyan : 'rgba(15,30,42,0.9)',
+                  boxShadow: i < filled ? '0 0 4px rgba(34,211,238,0.5)' : 'none',
+                }} />
+              ))}
+            </div>
+            <span style={{ fontSize: 9, color: theme.muted }}>
+              <span style={{ color: theme.greenSoft, fontWeight: 700 }}>{claw.activeConcept}</span>
+              {' / '}{claw.capacity}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+        {tools.map((name) => (
+          <span key={name} style={{
+            fontSize: 8, padding: '2px 5px', borderRadius: 3,
+            border: '1px solid rgba(34,211,238,0.22)',
+            background: 'rgba(2,16,26,0.85)', color: theme.cyanSoft, letterSpacing: 0.2,
+          }}>{name}</span>
         ))}
       </div>
+      {hover && (
+        <div style={{
+          position: 'absolute',
+          ...(side === 'left' ? { right: 5 } : { left: 5 }),
+          top: 5,
+          display: 'flex', gap: 4,
+        }}>
+          <button type="button" style={btn}>Pause Clan</button>
+          <button type="button" style={btn}>Inspect</button>
+        </div>
+      )}
     </div>
   );
 }
+
+const btn = {
+  fontSize: 8, fontWeight: 700, letterSpacing: 0.3, padding: '3px 7px',
+  borderRadius: 4, cursor: 'pointer',
+  border: `1px solid ${theme.panelBorderStrong}`,
+  background: 'rgba(2,20,32,0.95)', color: theme.cyanSoft,
+};
