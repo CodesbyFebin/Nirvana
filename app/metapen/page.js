@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import SwarmControlCenter from './components/SwarmControlCenter';
+import { Badge, theme } from './components/theme';
 
 const VIEWS = [
   ['overview', 'Overview'],
@@ -30,31 +32,14 @@ const MODELS = [
   },
 ];
 
-function badge(label, tone = 'planned') {
-  const colors = {
-    planned: { bg: '#1a2e1a', fg: '#86efac', border: '#166534' },
-    live: { bg: '#052e1a', fg: '#4ade80', border: '#16a34a' },
-    warn: { bg: '#2a2410', fg: '#fbbf24', border: '#854d0e' },
-    muted: { bg: '#1a1a1a', fg: '#a3a3a3', border: '#404040' },
-  };
-  const c = colors[tone] || colors.muted;
-  return (
-    <span style={{
-      display: 'inline-block', fontSize: 11, fontWeight: 600, letterSpacing: 0.3,
-      padding: '2px 8px', borderRadius: 999, background: c.bg, color: c.fg,
-      border: `1px solid ${c.border}`, marginLeft: 6, verticalAlign: 'middle',
-    }}>{label}</span>
-  );
-}
-
 function Card({ title, children, right }) {
   return (
     <section style={{
-      background: '#0b140f', border: '1px solid #1a3d28', borderRadius: 12,
+      background: theme.panel, border: `1px solid ${theme.panelBorder}`, borderRadius: 12,
       padding: 16, marginBottom: 14,
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8, flexWrap: 'wrap' }}>
-        <h3 style={{ margin: 0, fontSize: 15, color: '#bbf7d0' }}>{title}</h3>
+        <h3 style={{ margin: 0, fontSize: 15, color: theme.accentSoft }}>{title}</h3>
         {right}
       </div>
       {children}
@@ -62,21 +47,26 @@ function Card({ title, children, right }) {
   );
 }
 
-function Stat({ label, value, hint }) {
+function Stat({ label, value, hint, concept }) {
   return (
     <div style={{
-      background: '#07110c', border: '1px solid #1f3f2c', borderRadius: 10,
+      background: theme.tile, border: `1px solid ${theme.panelBorder}`, borderRadius: 10,
       padding: '14px 16px', minWidth: 140, flex: 1,
     }}>
-      <div style={{ fontSize: 11, color: '#86a894', textTransform: 'uppercase', letterSpacing: 0.6 }}>{label}</div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
-      {hint ? <div style={{ fontSize: 11, color: '#7d9585', marginTop: 4 }}>{hint}</div> : null}
+      <div style={{ fontSize: 11, color: theme.muted, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+        {label}{concept ? <Badge tone="concept">concept</Badge> : null}
+      </div>
+      <div style={{
+        fontSize: 28, fontWeight: 700, marginTop: 4, fontVariantNumeric: 'tabular-nums',
+        color: concept ? '#94a3b8' : theme.accent,
+      }}>{value}</div>
+      {hint ? <div style={{ fontSize: 11, color: theme.muted, marginTop: 4 }}>{hint}</div> : null}
     </div>
   );
 }
 
 export default function MetaPenPage() {
-  const [view, setView] = useState('overview');
+  const [view, setView] = useState('swarm');
   const [error, setError] = useState('');
   const [swarm, setSwarm] = useState(null);
   const [caps, setCaps] = useState(null);
@@ -112,7 +102,7 @@ export default function MetaPenPage() {
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || 'Desk unavailable');
       setDesk(d);
-    } catch (e) { setDesk(null); /* desk optional */ }
+    } catch { setDesk(null); }
     try {
       const r = await fetch('/api/verification', { cache: 'no-store', credentials: 'same-origin' });
       const d = await r.json();
@@ -151,7 +141,8 @@ export default function MetaPenPage() {
     try {
       const r = await fetch('/api/swarm', {
         method: 'POST',
-        credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: swarmPrompt, confirmCost: true }),
       });
       const d = await r.json();
@@ -170,7 +161,8 @@ export default function MetaPenPage() {
     try {
       const r = await fetch('/api/capabilities', {
         method: 'POST',
-        credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           capability: capForm.capability,
           taskId: capForm.taskId.trim(),
@@ -186,27 +178,29 @@ export default function MetaPenPage() {
     finally { setBusy(false); }
   }
 
+  const showOrbit = view === 'overview' || view === 'swarm';
+
   return (
-    <div style={{ minHeight: '100vh', background: '#050a07', color: '#e8f5ec', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: theme.bg, color: theme.text, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       <header style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
-        padding: '14px 20px', borderBottom: '1px solid #1a3d28', background: '#08140e',
+        padding: '14px 20px', borderBottom: `1px solid ${theme.panelBorder}`, background: theme.panel,
       }}>
         <div>
-          <a href="/" style={{ color: '#86efac', textDecoration: 'none', fontSize: 13 }}>← Workspace</a>
+          <a href="/" style={{ color: theme.accentSoft, textDecoration: 'none', fontSize: 13 }}>← Workspace</a>
           <div style={{ marginTop: 4 }}>
             <strong style={{ fontSize: 20, letterSpacing: 0.4 }}>MetaPen</strong>
-            <span style={{ color: '#4ade80', marginLeft: 10, fontSize: 13 }}>AI Cybersecurity OS · concept shell</span>
+            <span style={{ color: theme.accent, marginLeft: 10, fontSize: 13 }}>AI Cybersecurity OS · control center</span>
           </div>
-          <div style={{ fontSize: 12, color: '#7d9585', marginTop: 2 }}>
-            “500 agents. One mission.” <em style={{ color: '#a3b5a8' }}>(concept / target — not a live agent pool)</em>
+          <div style={{ fontSize: 12, color: theme.muted, marginTop: 2 }}>
+            “500 agents. One mission.” <em style={{ color: theme.concept }}>(concept / target — not a live agent pool)</em>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {PIPELINE.map((stage, i) => (
             <span key={stage} style={{
               fontSize: 11, padding: '4px 10px', borderRadius: 999,
-              border: '1px solid #245c3a', color: '#bbf7d0', background: '#0b1a12',
+              border: `1px solid ${theme.panelBorder}`, color: theme.accentSoft, background: theme.tile,
             }}>
               {i + 1}. {stage}
             </span>
@@ -226,18 +220,18 @@ export default function MetaPenPage() {
             style={{
               background: view === id ? '#14532d' : 'transparent',
               color: view === id ? '#ecfdf5' : '#9cb5a6',
-              border: `1px solid ${view === id ? '#22c55e' : '#1f3f2c'}`,
+              border: `1px solid ${view === id ? theme.accent : theme.panelBorder}`,
               borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontWeight: 600, fontSize: 13,
             }}
           >{label}</button>
         ))}
         <button type="button" onClick={refresh} style={{
-          marginLeft: 'auto', background: '#0b1a12', color: '#86efac', border: '1px solid #245c3a',
+          marginLeft: 'auto', background: theme.tile, color: theme.accentSoft, border: `1px solid ${theme.panelBorder}`,
           borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: 12,
         }}>Refresh data</button>
       </nav>
 
-      <main style={{ padding: 20, maxWidth: 1180, margin: '0 auto' }}>
+      <main style={{ padding: 16, maxWidth: 1480, margin: '0 auto' }}>
         {error ? (
           <div style={{
             background: '#2a1212', border: '1px solid #7f1d1d', color: '#fecaca',
@@ -245,135 +239,84 @@ export default function MetaPenPage() {
           }}>{error}</div>
         ) : null}
 
-        {view === 'overview' && (
+        {showOrbit ? (
           <>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
-              <Stat
-                label="Configured swarm roles"
-                value={swarm ? `${swarm.rolesConfigured}/${swarm.roleCount}` : '—'}
-                hint={swarm?.ready ? 'Gateway review ready' : 'Not fully configured'}
-              />
-              <Stat
-                label="Approval records"
-                value={caps ? approvalCounts.total : '—'}
-                hint={caps ? `${approvalCounts.pending || 0} pending` : 'Store unreachable'}
-              />
-              <Stat
-                label="Verification jobs"
-                value={jobCounts.total}
-                hint={Object.entries(jobCounts).filter(([k]) => k !== 'total').map(([k, v]) => `${k}:${v}`).join(' · ') || 'none queued'}
-              />
-              <Stat
-                label="Desk items"
-                value={desk?.items ? desk.items.length : '—'}
-                hint={desk ? 'From /api/desk' : 'Desk DB optional'}
-              />
-            </div>
-
-            <Card title="Control center" right={badge('Live shell', 'live')}>
-              <p style={{ margin: '0 0 10px', color: '#a3b5a8', fontSize: 14, lineHeight: 1.5 }}>
-                MetaPen folds Jules-Claw’s real APIs into one operator surface: advisory Claw Swarm,
-                JeV (MEV) capability approvals, verification evidence, and model routing labels.
-                Counts above are live from this host — not fabricated agent fleets.
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10 }}>
-                <div style={tileStyle}>
-                  <strong>Claw Swarm</strong>
-                  <div style={{ fontSize: 12, color: '#9cb5a6', marginTop: 6 }}>
-                    {swarm?.roleCount ?? 6} advisory roles · concurrency concept target 30–50 · pool concept “500 agents”
-                  </div>
-                </div>
-                <div style={tileStyle}>
-                  <strong>JeV approval desk</strong>
-                  <div style={{ fontSize: 12, color: '#9cb5a6', marginTop: 6 }}>
-                    Scope: owned-lab · Network: restricted · Decide via local TTY only
-                  </div>
-                </div>
-                <div style={tileStyle}>
-                  <strong>Kali sandbox workers</strong>{badge('Planned')}
-                  <div style={{ fontSize: 12, color: '#9cb5a6', marginTop: 6 }}>
-                    Separate lab workers — not claimed live in this increment.
-                  </div>
-                </div>
-                <div style={tileStyle}>
-                  <strong>zkVM verification</strong>{badge('Planned')}
-                  <div style={{ fontSize: 12, color: '#9cb5a6', marginTop: 6 }}>
-                    No live proof claimed. Receipt verification remains a future layer.
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </>
-        )}
-
-        {view === 'swarm' && (
-          <>
-            <Card title="Claw Swarm status" right={swarm?.ready ? badge('Configured', 'live') : badge('Not ready', 'warn')}>
-              <p style={{ marginTop: 0, color: '#a3b5a8', fontSize: 13 }}>{swarm?.notice || 'Loading…'}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 8 }}>
-                {swarm && Object.entries(swarm.roles || {}).map(([role, info]) => (
-                  <div key={role} style={{
-                    ...tileStyle, borderColor: info.configured ? '#166534' : '#3f3f46',
-                  }}>
-                    <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 13 }}>{role}</div>
-                    <div style={{ fontSize: 11, color: info.configured ? '#4ade80' : '#a1a1aa', marginTop: 4 }}>
-                      {info.configured ? 'model env set' : 'SWARM_MODEL_* missing'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p style={{ fontSize: 12, color: '#7d9585', marginBottom: 0 }}>
-                Concept target: pooled concurrency 30–50 of a “500 agents” fleet. Live today: {swarm?.roleCount || 0} advisory roles when gateway is configured.
-              </p>
-            </Card>
-            <Card title="Run advisory review">
-              <form onSubmit={runSwarm}>
-                <textarea
-                  value={swarmPrompt}
-                  onChange={(e) => setSwarmPrompt(e.target.value)}
-                  maxLength={3000}
-                  rows={4}
-                  placeholder="Bounded task for six-role gateway review…"
-                  style={inputStyle}
+            {view === 'overview' ? (
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
+                <Stat
+                  label="Gateway swarm roles"
+                  value={swarm ? `${swarm.rolesConfigured}/${swarm.roleCount}` : '—'}
+                  hint={swarm?.ready ? 'Live /api/swarm ready' : 'Not fully configured'}
                 />
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
-                  <button type="submit" disabled={busy || !swarmPrompt.trim()} style={btnStyle}>
-                    {busy ? 'Calling gateway…' : 'Confirm cost & run swarm'}
-                  </button>
-                  <span style={{ fontSize: 12, color: '#7d9585' }}>Uses real gateway calls when ready; no code execution.</span>
-                </div>
-              </form>
-              {swarmResult ? (
-                <div style={{ marginTop: 14 }}>
-                  <div style={{ fontSize: 12, color: '#86efac' }}>
-                    actualCalls: {swarmResult.actualCalls}
-                    {swarmResult.reportedTokens != null ? ` · tokens: ${swarmResult.reportedTokens}` : ''}
+                <Stat
+                  label="Approval records"
+                  value={caps ? approvalCounts.total : '—'}
+                  hint={caps ? `${approvalCounts.pending || 0} pending` : 'Store unreachable'}
+                />
+                <Stat
+                  label="Verification jobs"
+                  value={jobCounts.total}
+                  hint={Object.entries(jobCounts).filter(([k]) => k !== 'total').map(([k, v]) => `${k}:${v}`).join(' · ') || 'none queued'}
+                />
+                <Stat
+                  label="Specialist pool"
+                  value="500"
+                  hint="Concept target fleet size"
+                  concept
+                />
+              </div>
+            ) : null}
+            <SwarmControlCenter swarm={swarm} caps={caps} jobs={jobs} onRefresh={refresh} />
+            {view === 'swarm' ? (
+              <Card title="Run advisory gateway review (live 6-role API)" right={<Badge tone="live">/api/swarm</Badge>}>
+                <form onSubmit={runSwarm}>
+                  <textarea
+                    value={swarmPrompt}
+                    onChange={(e) => setSwarmPrompt(e.target.value)}
+                    maxLength={3000}
+                    rows={3}
+                    placeholder="Bounded task for six-role gateway review…"
+                    style={inputStyle}
+                  />
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
+                    <button type="submit" disabled={busy || !swarmPrompt.trim()} style={btnStyle}>
+                      {busy ? 'Calling gateway…' : 'Confirm cost & run swarm'}
+                    </button>
+                    <span style={{ fontSize: 12, color: theme.muted }}>Separate from the 10-claw concept roster above.</span>
                   </div>
-                  <p style={{ fontSize: 12, color: '#a3b5a8' }}>{swarmResult.notice}</p>
-                  {(swarmResult.stages || []).map((stage) => (
-                    <pre key={stage.role} style={preStyle}>
-                      <strong>{stage.role}</strong> · {stage.model} · {stage.latencyMs}ms{'\n'}
-                      {stage.text}
-                    </pre>
-                  ))}
-                </div>
-              ) : null}
-            </Card>
+                </form>
+                {swarmResult ? (
+                  <div style={{ marginTop: 14 }}>
+                    <div style={{ fontSize: 12, color: theme.accentSoft }}>
+                      actualCalls: {swarmResult.actualCalls}
+                      {swarmResult.reportedTokens != null ? ` · tokens: ${swarmResult.reportedTokens}` : ''}
+                    </div>
+                    <p style={{ fontSize: 12, color: theme.muted }}>{swarmResult.notice}</p>
+                    {(swarmResult.stages || []).map((stage) => (
+                      <pre key={stage.role} style={preStyle}>
+                        <strong>{stage.role}</strong> · {stage.model} · {stage.latencyMs}ms{'\n'}
+                        {stage.text}
+                      </pre>
+                    ))}
+                  </div>
+                ) : null}
+              </Card>
+            ) : null}
           </>
-        )}
+        ) : null}
 
         {view === 'jev' && (
           <>
             <Card
               title="JeV (MEV) approval desk"
               right={<>
-                {badge('HITL', 'live')}
-                <span style={{ fontSize: 11, color: '#86a894', marginLeft: 8 }}>
+                <Badge tone="live">HITL</Badge>
+                <span style={{ fontSize: 11, color: theme.muted, marginLeft: 8 }}>
                   Scope: owned-lab · Network: restricted
                 </span>
               </>}
             >
-              <p style={{ marginTop: 0, color: '#a3b5a8', fontSize: 13 }}>
+              <p style={{ marginTop: 0, color: theme.muted, fontSize: 13 }}>
                 {caps?.notice || 'Capability store status loading…'}
                 {' '}Decide/consume remain local TTY only (<code>npm run approval</code> / <code>execute:approved</code>).
               </p>
@@ -388,14 +331,14 @@ export default function MetaPenPage() {
               </div>
               <div style={{ maxHeight: 280, overflow: 'auto' }}>
                 {(caps?.approvals || []).length === 0 ? (
-                  <p style={{ color: '#7d9585', fontSize: 13 }}>No approval rows yet.</p>
+                  <p style={{ color: theme.muted, fontSize: 13 }}>No approval rows yet.</p>
                 ) : (caps.approvals.map((row) => (
                   <div key={row.id} style={{ ...tileStyle, marginBottom: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                       <code style={{ fontSize: 12 }}>{row.id}</code>
-                      <span style={{ fontSize: 11, color: '#4ade80' }}>{row.state}</span>
+                      <span style={{ fontSize: 11, color: theme.accent }}>{row.state}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: '#a3b5a8', marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: theme.muted, marginTop: 4 }}>
                       {row.action?.capability} · task {row.action?.taskId}
                     </div>
                     <div style={{ fontSize: 11, color: '#6b8575' }}>expires {row.expiresAt}</div>
@@ -451,14 +394,14 @@ export default function MetaPenPage() {
 
         {view === 'evidence' && (
           <>
-            <Card title="Verification jobs" right={badge('Worker profiles: syntax · node-tests', 'live')}>
+            <Card title="Verification jobs" right={<Badge tone="live">syntax · node-tests</Badge>}>
               {jobs.length === 0 ? (
-                <p style={{ color: '#7d9585', fontSize: 13 }}>No jobs from /api/verification (DB may be unset).</p>
+                <p style={{ color: theme.muted, fontSize: 13 }}>No jobs from /api/verification (DB may be unset).</p>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
-                      <tr style={{ color: '#86a894', textAlign: 'left' }}>
+                      <tr style={{ color: theme.muted, textAlign: 'left' }}>
                         <th style={th}>Status</th>
                         <th style={th}>Profile</th>
                         <th style={th}>Commit</th>
@@ -468,7 +411,7 @@ export default function MetaPenPage() {
                     </thead>
                     <tbody>
                       {jobs.slice(0, 40).map((j) => (
-                        <tr key={j.id} style={{ borderTop: '1px solid #1a3d28' }}>
+                        <tr key={j.id} style={{ borderTop: `1px solid ${theme.panelBorder}` }}>
                           <td style={td}>{j.status}</td>
                           <td style={td}>{j.profile}</td>
                           <td style={td}><code>{(j.commit_sha || '').slice(0, 12)}</code></td>
@@ -481,34 +424,34 @@ export default function MetaPenPage() {
                 </div>
               )}
             </Card>
-            <Card title="Desk / findings journal" right={desk ? badge('Connected', 'live') : badge('Unavailable', 'warn')}>
+            <Card title="Desk / findings journal" right={desk ? <Badge tone="live">Connected</Badge> : <Badge tone="warn">Unavailable</Badge>}>
               {!desk?.items?.length ? (
-                <p style={{ color: '#7d9585', fontSize: 13 }}>No desk items (or DATABASE_URL unset). User-authored notes only — not auto-verified findings.</p>
+                <p style={{ color: theme.muted, fontSize: 13 }}>No desk items (or DATABASE_URL unset). User-authored notes only.</p>
               ) : desk.items.slice(0, 30).map((item) => (
                 <div key={item.id || item.title} style={{ ...tileStyle, marginBottom: 8 }}>
                   <strong>{item.title}</strong>
-                  <span style={{ marginLeft: 8, fontSize: 11, color: '#86efac' }}>{item.status}</span>
-                  <div style={{ fontSize: 12, color: '#a3b5a8', marginTop: 4, whiteSpace: 'pre-wrap' }}>{item.detail}</div>
+                  <span style={{ marginLeft: 8, fontSize: 11, color: theme.accentSoft }}>{item.status}</span>
+                  <div style={{ fontSize: 12, color: theme.muted, marginTop: 4, whiteSpace: 'pre-wrap' }}>{item.detail}</div>
                 </div>
               ))}
             </Card>
-            <Card title="zkVM layer" right={badge('Planned')}>
-              <p style={{ margin: 0, color: '#a3b5a8', fontSize: 13 }}>
+            <Card title="zkVM / Hash Receipts" right={<Badge tone="planned">Planned</Badge>}>
+              <p style={{ margin: 0, color: theme.muted, fontSize: 13 }}>
                 No live proof claimed. zkVM receipt verification is a planned honesty boundary, not an active prover in this build.
               </p>
             </Card>
-            <Card title="Kali sandbox workers" right={badge('Planned')}>
-              <p style={{ margin: 0, color: '#a3b5a8', fontSize: 13 }}>
-                Lab Kali workers are conceptual for this increment. Live isolation today is the Docker verifier profiles only.
+            <Card title="Kali sandbox workers" right={<Badge tone="planned">Planned</Badge>}>
+              <p style={{ margin: 0, color: theme.muted, fontSize: 13 }}>
+                Lab Kali workers remain conceptual for this increment. Live isolation today is Docker verifier profiles only.
               </p>
             </Card>
           </>
         )}
 
         {view === 'models' && (
-          <Card title="Model routing panel" right={badge('Corrected naming', 'live')}>
-            <p style={{ marginTop: 0, color: '#a3b5a8', fontSize: 13 }}>
-              Pipeline: {PIPELINE.join(' → ')}. Names below match Meta Muse products where applicable;
+          <Card title="Model routing panel" right={<Badge tone="live">Corrected naming</Badge>}>
+            <p style={{ marginTop: 0, color: theme.muted, fontSize: 13 }}>
+              Pipeline: {PIPELINE.join(' → ')}. Muse names match Meta products where applicable;
               Graph Engine is an internal tier label (not “Libra”).
             </p>
             <div style={{ display: 'grid', gap: 12 }}>
@@ -517,8 +460,8 @@ export default function MetaPenPage() {
                   ...tileStyle, display: 'grid', gridTemplateColumns: '180px 1fr', gap: 12, alignItems: 'start',
                 }}>
                   <div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#4ade80' }}>{m.name}</div>
-                    <div style={{ fontSize: 12, color: '#86efac', marginTop: 4 }}>{m.role}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: theme.accent }}>{m.name}</div>
+                    <div style={{ fontSize: 12, color: theme.accentSoft, marginTop: 4 }}>{m.role}</div>
                   </div>
                   <div style={{ fontSize: 13, color: '#c5d9cc' }}>{m.detail}</div>
                 </div>
@@ -532,8 +475,8 @@ export default function MetaPenPage() {
 }
 
 const tileStyle = {
-  background: '#07110c',
-  border: '1px solid #1f3f2c',
+  background: theme.tile,
+  border: `1px solid ${theme.panelBorder}`,
   borderRadius: 10,
   padding: 12,
 };
@@ -541,9 +484,9 @@ const tileStyle = {
 const inputStyle = {
   width: '100%',
   boxSizing: 'border-box',
-  background: '#050a07',
-  border: '1px solid #245c3a',
-  color: '#e8f5ec',
+  background: theme.bg,
+  border: `1px solid ${theme.panelBorder}`,
+  color: theme.text,
   borderRadius: 8,
   padding: 10,
   fontFamily: 'inherit',
@@ -552,7 +495,7 @@ const inputStyle = {
 };
 
 const btnStyle = {
-  background: '#16a34a',
+  background: theme.accentDim,
   color: '#052e16',
   border: 0,
   borderRadius: 8,
@@ -564,8 +507,8 @@ const btnStyle = {
 const labelStyle = { display: 'block', fontSize: 12, color: '#9cb5a6' };
 
 const preStyle = {
-  background: '#050a07',
-  border: '1px solid #1f3f2c',
+  background: theme.bg,
+  border: `1px solid ${theme.panelBorder}`,
   borderRadius: 8,
   padding: 12,
   whiteSpace: 'pre-wrap',
